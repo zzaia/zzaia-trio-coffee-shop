@@ -1,0 +1,21 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: __NAMESPACE__
+spec:
+  type: state.sqlserver
+  version: v1
+  metadata:
+  - name: connectionString
+    secretKeyRef:
+      name: sql-connection-string
+      key: connectionString
+  - name: tableName
+    value: state
+  - name: metadataTableName
+    value: dapr_metadata
+  - name: keyType
+    value: string
+  - name: keyLength
+    value: "200"

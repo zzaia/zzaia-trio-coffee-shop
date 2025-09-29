@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coffee-shop-bff
+  namespace: coffee-shop
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: coffee-shop-bff
+  template:
+    metadata:
+      labels:
+        app: coffee-shop-bff
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "coffee-shop-bff"
+        dapr.io/app-port: "80"
+        dapr.io/config: "dapr-config"
+    spec:
+      containers:
+      - name: coffee-shop-bff
+        image: zzaia/coffee-shop-bff:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Staging"
+        - name: ASPNETCORE_URLS
+          value: "http://+:80"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5

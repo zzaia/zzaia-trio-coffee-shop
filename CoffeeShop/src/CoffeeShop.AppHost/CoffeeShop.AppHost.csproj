@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>9aa1d531-fc10-4ea2-8607-40bc51d22410</UserSecretsId>
+    <RootNamespace>Zzaia.CoffeeShop.AppHost</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.2.2" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="8.2.2" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="8.2.1" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.3.2" />
+    <PackageReference Include="Azure.Identity" Version="1.12.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CoffeeShop.ServiceDefaults\CoffeeShop.ServiceDefaults.csproj" IsAspireProjectResource="false" />
+    <ProjectReference Include="..\CoffeeShop.Order\CoffeeShop.Order.csproj" />
+    <ProjectReference Include="..\CoffeeShop.Wasm\CoffeeShop.Wasm.csproj" />
+    <ProjectReference Include="..\CoffeeShop.BFF\CoffeeShop.BFF.csproj" />
+  </ItemGroup>
+
+</Project>
