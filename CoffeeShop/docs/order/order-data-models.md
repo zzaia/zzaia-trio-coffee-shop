@@ -48,122 +48,114 @@ erDiagram
     }
 ```
 
-## PostgreSQL Database Schema
+## Entity Descriptions
 
-### Users Table
-```sql
-CREATE TABLE Users (
-    Id UUID PRIMARY KEY,
-    Username VARCHAR(100) UNIQUE NOT NULL,
-    Email VARCHAR(255) UNIQUE NOT NULL,
-    PasswordHash VARCHAR(255) NOT NULL,
-    Role VARCHAR(50) NOT NULL,
-    CreatedAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    LastLoginAt TIMESTAMP WITH TIME ZONE
-);
-```
+### Users Entity
+Represents authenticated users in the coffee shop system with role-based access control.
 
-### Products Table
-```sql
-CREATE TABLE Products (
-    Id UUID PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-    BasePrice DECIMAL(10, 2) NOT NULL,
-    Category VARCHAR(100) NOT NULL
-);
+**Key Attributes:**
+- `id` (UUID, PK): Unique identifier for the user
+- `username` (string): User's display name for identification
+- `email` (string): User's email address for communication
+- `role` (string): Access level - either "customer" or "manager"
 
-CREATE TABLE ProductVariations (
-    Id UUID PRIMARY KEY,
-    ProductId UUID REFERENCES Products(Id),
-    Name VARCHAR(100) NOT NULL,
-    PriceModifier DECIMAL(10, 2) DEFAULT 0
-);
-```
+**Business Rules:**
+- Role determines available operations (customers place orders, managers manage them)
+- Email must be unique across the system
+- Authentication managed by separate Identity Service
 
-### Orders Table
-```sql
-CREATE TABLE Orders (
-    Id UUID PRIMARY KEY,
-    UserId UUID REFERENCES Users(Id),
-    Status VARCHAR(50) NOT NULL,
-    TotalAmount DECIMAL(10, 2) NOT NULL,
-    CreatedAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UpdatedAt TIMESTAMP WITH TIME ZONE
-);
+**Relationships:**
+- One user can place many orders (1:N with Orders)
 
-CREATE TABLE OrderItems (
-    Id UUID PRIMARY KEY,
-    OrderId UUID REFERENCES Orders(Id),
-    ProductId UUID REFERENCES Products(Id),
-    ProductVariationId UUID REFERENCES ProductVariations(Id),
-    Quantity INTEGER NOT NULL,
-    UnitPrice DECIMAL(10, 2) NOT NULL
-);
-```
+---
 
-## Domain Entities
+### Orders Entity
+Core aggregate representing a customer's coffee shop order with complete lifecycle tracking.
 
-### Order Entity
-```csharp
-public class Order : AggregateRoot<OrderId>
-{
-    public CustomerId CustomerId { get; private set; }
-    public OrderStatus Status { get; private set; }
-    public Money TotalAmount { get; private set; }
-    private List<OrderItem> _items = new();
+**Key Attributes:**
+- `id` (UUID, PK): Unique order identifier
+- `user_id` (UUID, FK): Reference to the customer who placed the order
+- `status` (string): Current order state - "Waiting", "Preparation", "Ready", or "Delivered"
+- `total_amount` (decimal): Calculated total price including all items and variations
+- `created_at` (timestamp): Order creation timestamp for tracking and sorting
 
-    public void AddItem(Product product, ProductVariation variation, int quantity)
-    {
-        var unitPrice = product.BasePrice + (variation?.PriceModifier ?? 0);
-        var orderItem = new OrderItem(product, variation, quantity, unitPrice);
-        _items.Add(orderItem);
-        RecalculateTotalAmount();
-    }
+**Business Rules:**
+- Status transitions must follow strict sequence: Waiting → Preparation → Ready → Delivered
+- Total amount is immutable once payment succeeds
+- Only created after successful payment confirmation
+- Managers can update status, customers can only view
 
-    private void RecalculateTotalAmount()
-    {
-        TotalAmount = _items.Sum(item => item.UnitPrice * item.Quantity);
-    }
-}
-```
+**Relationships:**
+- Belongs to one user (N:1 with Users)
+- Contains one or more order items (1:N with OrderItems)
 
-### Value Objects
-```csharp
-public record Money(decimal Amount, string Currency = "USD")
-{
-    public static Money operator +(Money a, Money b) =>
-        a with { Amount = a.Amount + b.Amount };
+---
 
-    public static Money operator *(Money money, int quantity) =>
-        money with { Amount = money.Amount * quantity };
-}
+### OrderItems Entity
+Line items representing individual products and their variations within an order.
 
-public record ProductSnapshot(
-    ProductId Id,
-    string Name,
-    Money Price,
-    ProductVariation Variation = null
-);
-```
+**Key Attributes:**
+- `id` (UUID, PK): Unique line item identifier
+- `order_id` (UUID, FK): Parent order reference
+- `product_id` (UUID, FK): Reference to the ordered product
+- `product_variation_id` (UUID, FK): Specific variation selected (nullable if product has no variations)
+- `quantity` (int): Number of items ordered
+- `unit_price` (decimal): Snapshot of the calculated price at order time (base + variation)
 
-## Initial Data Seeding
+**Business Rules:**
+- Unit price captures base_price + price_modifier at order time
+- Price is immutable to preserve historical accuracy
+- Quantity must be positive integer
+- Each line item represents one product-variation combination
 
-### Product Catalog Seeding
-```sql
--- Seed Products
-INSERT INTO Products (Id, Name, BasePrice, Category) VALUES
-    (gen_random_uuid(), 'Latte', 4.00, 'Coffee'),
-    (gen_random_uuid(), 'Espresso', 2.50, 'Coffee'),
-    (gen_random_uuid(), 'Macchiato', 4.00, 'Coffee'),
-    (gen_random_uuid(), 'Iced Coffee', 3.50, 'Coffee'),
-    (gen_random_uuid(), 'Donut', 2.00, 'Pastry');
+**Relationships:**
+- Belongs to one order (N:1 with Orders)
+- References one product (N:1 with Products)
+- References one product variation (N:1 with ProductVariations, optional)
 
--- Seed Product Variations
-INSERT INTO ProductVariations (Id, ProductId, Name, PriceModifier) VALUES
-    (gen_random_uuid(), (SELECT Id FROM Products WHERE Name = 'Latte'), 'Pumpkin Spice', 0.50),
-    (gen_random_uuid(), (SELECT Id FROM Products WHERE Name = 'Latte'), 'Vanilla', 0.30),
-    (gen_random_uuid(), (SELECT Id FROM Products WHERE Name = 'Espresso'), 'Double Shot', 1.00);
-```
+---
+
+### Products Entity
+Catalog of available coffee shop products with base pricing information.
+
+**Key Attributes:**
+- `id` (UUID, PK): Unique product identifier
+- `name` (string): Product name (e.g., "Latte", "Espresso", "Donuts")
+- `base_price` (decimal): Starting price before variations applied
+- `category` (string): Product classification for organization and filtering
+
+**Business Rules:**
+- Products are read-only from customer perspective
+- Base price is the foundation for all price calculations
+- Product catalog is pre-seeded via migrations
+- Names should be unique within categories
+
+**Relationships:**
+- Has zero or more variations (1:N with ProductVariations)
+- Referenced by order items (1:N with OrderItems)
+
+---
+
+### ProductVariations Entity
+Customization options for products with associated price modifiers.
+
+**Key Attributes:**
+- `id` (UUID, PK): Unique variation identifier
+- `product_id` (UUID, FK): Parent product reference
+- `name` (string): Variation name (e.g., "Vanilla", "Double Shot", "Glazed")
+- `price_modifier` (decimal): Amount to add to base price (can be 0.00 for default options)
+
+**Business Rules:**
+- Price modifier is added to product base price
+- Multiple variations can exist per product
+- Variation catalog is pre-seeded via migrations
+- Price modifiers are always additive (no negative values)
+
+**Relationships:**
+- Belongs to one product (N:1 with Products)
+- Referenced by order items (1:N with OrderItems)
+
+---
 
 ## Migration Strategy
 

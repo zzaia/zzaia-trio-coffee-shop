@@ -117,14 +117,5 @@ gantt
 ## Success Criteria
 - [ ] All endpoints working as specified
 - [ ] 90% code coverage
-- [ ] Performance under 100ms response time
-- [ ] Zero downtime during deployment
 - [ ] Comprehensive logging and tracing
 - [ ] Resilient external service communication
-
-## Performance Targets
-- Cold start time: < 500ms
-- Avg. request latency: < 50ms
-- Max concurrent requests: 1000
-- Error rate: < 0.1%
-- Memory usage: < 256MB
