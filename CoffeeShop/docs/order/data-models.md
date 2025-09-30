@@ -1,4 +1,4 @@
-# Coffee Shop Data Models and Database Schema
+# CoffeeShop.Order Data Models
 
 ## Entity Relationship Diagram
 
@@ -7,25 +7,15 @@ erDiagram
     Users ||--o{ Orders : places
     Orders ||--|| OrderItems : contains
     Products ||--o{ OrderItems : referenced
+    Products ||--o{ ProductVariations : has
+
     Users {
         uuid id PK
         string username
         string email
         string role
-        timestamp created_at
     }
-    Products {
-        uuid id PK
-        string name
-        decimal base_price
-        string category
-    }
-    ProductVariations {
-        uuid id PK
-        uuid product_id FK
-        string name
-        decimal price_modifier
-    }
+
     Orders {
         uuid id PK
         uuid user_id FK
@@ -33,21 +23,35 @@ erDiagram
         decimal total_amount
         timestamp created_at
     }
+
     OrderItems {
         uuid id PK
         uuid order_id FK
         uuid product_id FK
+        uuid product_variation_id FK
         int quantity
         decimal unit_price
     }
+
+    Products {
+        uuid id PK
+        string name
+        decimal base_price
+        string category
+    }
+
+    ProductVariations {
+        uuid id PK
+        uuid product_id FK
+        string name
+        decimal price_modifier
+    }
 ```
 
-## PostgreSQL Schema Definitions
+## PostgreSQL Database Schema
 
-### Identity Database
-
+### Users Table
 ```sql
--- Users Table
 CREATE TABLE Users (
     Id UUID PRIMARY KEY,
     Username VARCHAR(100) UNIQUE NOT NULL,
@@ -57,20 +61,10 @@ CREATE TABLE Users (
     CreatedAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     LastLoginAt TIMESTAMP WITH TIME ZONE
 );
-
--- User Claims
-CREATE TABLE UserClaims (
-    Id UUID PRIMARY KEY,
-    UserId UUID REFERENCES Users(Id),
-    ClaimType VARCHAR(100) NOT NULL,
-    ClaimValue VARCHAR(500)
-);
 ```
 
-### Order Database
-
+### Products Table
 ```sql
--- Products Table
 CREATE TABLE Products (
     Id UUID PRIMARY KEY,
     Name VARCHAR(255) NOT NULL,
@@ -78,15 +72,16 @@ CREATE TABLE Products (
     Category VARCHAR(100) NOT NULL
 );
 
--- Product Variations
 CREATE TABLE ProductVariations (
     Id UUID PRIMARY KEY,
     ProductId UUID REFERENCES Products(Id),
     Name VARCHAR(100) NOT NULL,
     PriceModifier DECIMAL(10, 2) DEFAULT 0
 );
+```
 
--- Orders Table
+### Orders Table
+```sql
 CREATE TABLE Orders (
     Id UUID PRIMARY KEY,
     UserId UUID REFERENCES Users(Id),
@@ -96,7 +91,6 @@ CREATE TABLE Orders (
     UpdatedAt TIMESTAMP WITH TIME ZONE
 );
 
--- Order Items
 CREATE TABLE OrderItems (
     Id UUID PRIMARY KEY,
     OrderId UUID REFERENCES Orders(Id),
@@ -107,8 +101,54 @@ CREATE TABLE OrderItems (
 );
 ```
 
+## Domain Entities
+
+### Order Entity
+```csharp
+public class Order : AggregateRoot<OrderId>
+{
+    public CustomerId CustomerId { get; private set; }
+    public OrderStatus Status { get; private set; }
+    public Money TotalAmount { get; private set; }
+    private List<OrderItem> _items = new();
+
+    public void AddItem(Product product, ProductVariation variation, int quantity)
+    {
+        var unitPrice = product.BasePrice + (variation?.PriceModifier ?? 0);
+        var orderItem = new OrderItem(product, variation, quantity, unitPrice);
+        _items.Add(orderItem);
+        RecalculateTotalAmount();
+    }
+
+    private void RecalculateTotalAmount()
+    {
+        TotalAmount = _items.Sum(item => item.UnitPrice * item.Quantity);
+    }
+}
+```
+
+### Value Objects
+```csharp
+public record Money(decimal Amount, string Currency = "USD")
+{
+    public static Money operator +(Money a, Money b) =>
+        a with { Amount = a.Amount + b.Amount };
+
+    public static Money operator *(Money money, int quantity) =>
+        money with { Amount = money.Amount * quantity };
+}
+
+public record ProductSnapshot(
+    ProductId Id,
+    string Name,
+    Money Price,
+    ProductVariation Variation = null
+);
+```
+
 ## Initial Data Seeding
 
+### Product Catalog Seeding
 ```sql
 -- Seed Products
 INSERT INTO Products (Id, Name, BasePrice, Category) VALUES
@@ -125,40 +165,17 @@ INSERT INTO ProductVariations (Id, ProductId, Name, PriceModifier) VALUES
     (gen_random_uuid(), (SELECT Id FROM Products WHERE Name = 'Espresso'), 'Double Shot', 1.00);
 ```
 
-## Migration Strategy from SQL Server
+## Migration Strategy
 
-1. **Schema Comparison**
-   - Analyze existing SQL Server schema
-   - Map data types to PostgreSQL equivalents
-   - Review constraints and indexes
-
-2. **Data Migration Steps**
-   - Use `pg_dump` and `pg_restore`
-   - Leverage EF Core migrations
-   - Validate data integrity post-migration
-
-3. **Configuration Example**
-```csharp
-public class PostgresMigrationConfiguration
-{
-    public void ConfigureMigration(IServiceCollection services)
-    {
-        services.AddDbContext<CoffeeShopContext>(options =>
-            options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
-                x => x.MigrationsHistoryTable("__EFMigrationsHistory", "coffee_shop")));
-    }
-}
-```
-
-## Key Design Considerations
+### Key Considerations
 - UUID for primary keys
 - Timezone-aware timestamps
 - Normalized product and variation structure
 - Flexible pricing model
 - Support for complex order compositions
 
-## Performance Optimizations
+### Performance Optimizations
 - Appropriate indexing
 - Partial indexes for frequently queried subsets
-- Consider materialized views for reporting
-- Horizontal partitioning for large tables
+- Potential materialized views for reporting
+- Consider horizontal partitioning for large tables
