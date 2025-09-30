@@ -95,36 +95,6 @@ Returns full information for a specific order:
   - `{"status": "{ORDER_STATUS}"}`
   - Displays full notification response in the terminal
 
-## C4 Context Diagram - Order Application
-
-```mermaid
-C4Context
-    title System Context diagram for CoffeeShop Order Application
-
-    Person(customer, "Customer", "Coffee shop customer placing orders")
-    Person(manager, "Manager", "Coffee shop manager managing orders")
-
-    System(orderSystem, "Order Service", "Manages coffee shop orders, pricing, and status transitions")
-
-    System_Ext(identitySystem, "Identity Service", "Handles authentication and authorization using client credentials")
-    System_Ext(paymentService, "Payment Service", "External payment processing service")
-    System_Ext(notificationService, "Notification Service", "External notification service for order status updates")
-
-    SystemDb(orderDb, "PostgreSQL Database", "Stores order data, items, and status")
-    System_Ext(daprSidecar, "Dapr Sidecar", "Service mesh for inter-service communication and secret management")
-
-    Rel(customer, orderSystem, "Places orders, views order details", "HTTPS/REST")
-    Rel(manager, orderSystem, "Updates order status, views all orders", "HTTPS/REST")
-
-    Rel(orderSystem, identitySystem, "Authenticates requests, validates roles", "Dapr Service Invocation")
-    Rel(orderSystem, paymentService, "Processes payments synchronously", "HTTPS/REST")
-    Rel(orderSystem, notificationService, "Sends status change notifications", "HTTPS/REST")
-    Rel(orderSystem, orderDb, "Reads from and writes to", "EF Core")
-    Rel(orderSystem, daprSidecar, "Uses for service discovery, secrets", "Dapr Client SDK")
-
-    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
-```
-
 ## C4 Container Diagram - Order Application
 
 ```mermaid
@@ -249,6 +219,7 @@ CoffeeShop.Order/
 ├── Infrastructure/
 │   ├── Persistence/
 │   │   └── OrderRepository.cs
+│   │   └── Migrations/ 
 │   ├── ExternalServices/
 │   │   ├── PaymentService.cs
 │   │   └── NotificationService.cs
@@ -263,6 +234,7 @@ CoffeeShop.Order/
 
 ```mermaid
 stateDiagram-v2
+    direction LR
     [*] --> Waiting: Create Order
     Waiting --> Preparation: Start Preparation (Manager)
     Preparation --> Ready: Complete Preparation (Manager)
@@ -328,8 +300,9 @@ stateDiagram-v2
 
 ## Persistency
 - Use of PostgreSQL to persist all domain models
-- Use Entity Framework
-- 
+- Use Entity Framework for database operations
+- Use the ServiceDefaults persistence extension to automatic apply migrations 
+- Use Entity Framework to insert the product data during the migrations
 
 ## Recommended Tools
 - .NET 9 
