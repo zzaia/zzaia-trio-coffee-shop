@@ -122,17 +122,6 @@ gantt
 - [ ] Comprehensive logging and tracing
 - [ ] Resilient external service communication
 
-## Recommended Tools
-- .NET 8
-- MediatR
-- FluentValidation
-- Entity Framework Core
-- Automapper
-- Dapr
-- PostgreSQL
-- Docker
-- Kubernetes
-
 ## Performance Targets
 - Cold start time: < 500ms
 - Avg. request latency: < 50ms

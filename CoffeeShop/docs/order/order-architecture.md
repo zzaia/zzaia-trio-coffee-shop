@@ -74,7 +74,19 @@ Returns full information for a specific order:
 - Current order status
 - Order creation timestamp
 
-#### 4. PATCH /orders/{id}/status — Update Order Status
+#### 4. GET /orders — List All Orders
+- **Manager Only**: Enforces role-based access control
+- Returns a list of all current orders that must be executed
+- Each order includes:
+  - Order ID
+  - Customer information
+  - Current status
+  - Total price
+  - Order creation timestamp
+- Orders are sorted by creation time (oldest first)
+- Useful for managers to track all pending and in-progress orders
+
+#### 5. PATCH /orders/{id}/status — Update Order Status
 - **Manager Only**: Enforces role-based access control
 - Status transitions must follow strictly:
   - **Status Flow**: Waiting → Preparation → Ready → Delivered
@@ -83,28 +95,123 @@ Returns full information for a specific order:
   - `{"status": "{ORDER_STATUS}"}`
   - Displays full notification response in the terminal
 
+## C4 Context Diagram - Order Application
+
+```mermaid
+C4Context
+    title System Context diagram for CoffeeShop Order Application
+
+    Person(customer, "Customer", "Coffee shop customer placing orders")
+    Person(manager, "Manager", "Coffee shop manager managing orders")
+
+    System(orderSystem, "Order Service", "Manages coffee shop orders, pricing, and status transitions")
+
+    System_Ext(identitySystem, "Identity Service", "Handles authentication and authorization using client credentials")
+    System_Ext(paymentService, "Payment Service", "External payment processing service")
+    System_Ext(notificationService, "Notification Service", "External notification service for order status updates")
+
+    SystemDb(orderDb, "PostgreSQL Database", "Stores order data, items, and status")
+    System_Ext(daprSidecar, "Dapr Sidecar", "Service mesh for inter-service communication and secret management")
+
+    Rel(customer, orderSystem, "Places orders, views order details", "HTTPS/REST")
+    Rel(manager, orderSystem, "Updates order status, views all orders", "HTTPS/REST")
+
+    Rel(orderSystem, identitySystem, "Authenticates requests, validates roles", "Dapr Service Invocation")
+    Rel(orderSystem, paymentService, "Processes payments synchronously", "HTTPS/REST")
+    Rel(orderSystem, notificationService, "Sends status change notifications", "HTTPS/REST")
+    Rel(orderSystem, orderDb, "Reads from and writes to", "EF Core")
+    Rel(orderSystem, daprSidecar, "Uses for service discovery, secrets", "Dapr Client SDK")
+
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+```
+
+## C4 Container Diagram - Order Application
+
+```mermaid
+C4Container
+    title Container diagram for CoffeeShop Order Application
+
+    Person(customer, "Customer", "Coffee shop customer")
+    Person(manager, "Manager", "Coffee shop manager")
+
+    Container_Boundary(orderBoundary, "Order Service") {
+        Container(api, "REST API", "ASP.NET Core, FastAPI", "Exposes order management endpoints")
+        Container(application, "Application Layer", "MediatR, FluentValidation", "Handles CQRS commands and queries")
+        Container(domain, "Domain Layer", "C# Domain Models", "Core business logic and rules")
+        Container(infrastructure, "Infrastructure Layer", "EF Core, HttpClient", "Data access and external integrations")
+    }
+
+    ContainerDb(database, "Order Database", "PostgreSQL", "Stores orders and items")
+
+    System_Ext(identityService, "Identity Service", "Authentication provider")
+    System_Ext(paymentAPI, "Payment API", "Payment processing")
+    System_Ext(notificationAPI, "Notification API", "Status notifications")
+    Container_Ext(dapr, "Dapr", "Service mesh runtime")
+
+    Rel(customer, api, "Uses", "HTTPS/REST")
+    Rel(manager, api, "Uses", "HTTPS/REST")
+
+    Rel(api, application, "Sends commands/queries to", "MediatR")
+    Rel(application, domain, "Uses domain logic from")
+    Rel(application, infrastructure, "Calls repositories and services")
+
+    Rel(infrastructure, database, "Reads/Writes", "EF Core/SQL")
+    Rel(infrastructure, paymentAPI, "Processes payments", "HTTP + Polly")
+    Rel(infrastructure, notificationAPI, "Sends notifications", "HTTP + Polly")
+    Rel(infrastructure, identityService, "Validates auth", "Dapr Client")
+
+    Rel(api, dapr, "Uses for secrets and discovery", "Dapr SDK")
+
+    UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")
+```
+
 ## Order Creation Sequence Diagram
 
 ```mermaid
 sequenceDiagram
-    participant Client as Client App
+    participant Customer as Customer App
+    participant Manager as Manager App
     participant BFF as Backend for Frontend
     participant OrderService as Order Service
     participant PaymentService as Payment Service
     participant NotificationService as Notification Service
     participant Database as PostgreSQL
 
-    Client->>BFF: POST /orders with order details
+    Note over Customer,Database: Customer Order Creation Flow
+    Customer->>BFF: POST /orders with order details
     BFF->>OrderService: Validate and process order
     OrderService->>OrderService: Validate order items
     OrderService->>OrderService: Calculate total price
-    OrderService->>Database: Save order details
-    OrderService->>PaymentService: Process payment
-    PaymentService-->>OrderService: Payment confirmation
-    OrderService->>NotificationService: Send order notification
-    NotificationService-->>OrderService: Notification status
+    OrderService->>PaymentService: Process payment (synchronous)
+    PaymentService-->>OrderService: Payment confirmation (success)
+    OrderService->>Database: Save order with status "Waiting"
     OrderService-->>BFF: Order created response
-    BFF-->>Client: Order confirmation
+    BFF-->>Customer: Order confirmation
+
+    Note over Manager,Database: Manager Status Update Flow (3 Sequential Requests)
+    Manager->>BFF: PATCH /orders/{id}/status (Waiting → Preparation)
+    BFF->>OrderService: Update status to Preparation
+    OrderService->>Database: Update order status
+    OrderService->>NotificationService: Notify status change
+    NotificationService-->>OrderService: Notification confirmed
+    OrderService-->>BFF: Status updated
+    BFF-->>Manager: Confirmation
+
+    Manager->>BFF: PATCH /orders/{id}/status (Preparation → Ready)
+    BFF->>OrderService: Update status to Ready
+    OrderService->>Database: Update order status
+    OrderService->>NotificationService: Notify status change
+    NotificationService-->>OrderService: Notification confirmed
+    OrderService-->>BFF: Status updated
+    BFF-->>Manager: Confirmation
+
+    Manager->>BFF: PATCH /orders/{id}/status (Ready → Delivered)
+    BFF->>OrderService: Update status to Delivered
+    OrderService->>Database: Update order status
+    OrderService->>NotificationService: Notify status change
+    NotificationService-->>OrderService: Notification confirmed
+    OrderService-->>BFF: Status updated
+    BFF-->>Manager: Confirmation
 ```
 
 ## Clean Architecture Layer Structure
@@ -132,7 +239,8 @@ CoffeeShop.Order/
 │   │   └── UpdateOrderStatusCommand.cs
 │   ├── Queries/
 │   │   ├── GetMenuQuery.cs
-│   │   └── GetOrderByIdQuery.cs
+│   │   ├── GetOrderByIdQuery.cs
+│   │   └── GetAllOrdersQuery.cs
 │   ├── DTOs/
 │   │   ├── OrderDto.cs
 │   │   └── OrderItemDto.cs
@@ -151,69 +259,6 @@ CoffeeShop.Order/
         └── OrderController.cs
 ```
 
-## Domain Model
-
-### Order Entity
-```csharp
-public class Order : AggregateRoot<OrderId>
-{
-    public CustomerId CustomerId { get; private set; }
-    public OrderStatus Status { get; private set; }
-    public Money TotalAmount { get; private set; }
-    private List<OrderItem> _items = new();
-
-    public void AddItem(Product product, int quantity) { /* ... */ }
-    public void UpdateStatus(OrderStatus newStatus) { /* ... */ }
-    public void CalculateTotalPrice() { /* ... */ }
-}
-```
-
-### Value Objects
-```csharp
-public record Money(decimal Amount, string Currency);
-public record ProductSnapshot(ProductId Id, string Name, Money Price);
-```
-
-## CQRS Structure
-
-### Commands
-```csharp
-public record CreateOrderCommand(
-    CustomerId CustomerId,
-    List<OrderItemDto> Items
-) : IRequest<OrderId>;
-
-public record UpdateOrderStatusCommand(
-    OrderId OrderId,
-    OrderStatus NewStatus
-) : IRequest<Unit>;
-```
-
-### Queries
-```csharp
-public record GetMenuQuery : IRequest<List<ProductDto>>;
-public record GetOrderByIdQuery(OrderId OrderId) : IRequest<OrderDto>;
-```
-
-## External Service Integration
-
-### Payment Service Integration
-```csharp
-public class PaymentService
-{
-    private readonly DaprClient _daprClient;
-
-    public async Task<PaymentResult> ProcessPayment(Order order)
-    {
-        return await _daprClient.InvokeMethodAsync<PaymentRequest, PaymentResult>(
-            "payment-service",
-            "process-payment",
-            new PaymentRequest { /* ... */ }
-        );
-    }
-}
-```
-
 ## Order Status Transition Workflow
 
 ```mermaid
@@ -226,10 +271,6 @@ stateDiagram-v2
 ```
 
 ## Key Design Decisions
-- Immutable domain entities
-- Explicit consistency boundaries
-- Event-driven domain model
-- Comprehensive validation
 - Resilient external service communication
 - Strict order status transitions
 
@@ -239,14 +280,67 @@ stateDiagram-v2
 - Validation of pricing rules
 - Immutable price calculations
 
+## Exception Handling
+- Use of Exception handler middleware to generate problem details responses
+- Return problem details with validation errors from fluent validation exceptions
+
+## Event driven design
+- Use of CQRS with mediator pattern
+- Use of pipeline behavior in mediator for validation and logging
+
+## Logging
+- Avoid logging throughout the code
+- Use the logging pipeline behavior pattern to log commands, responses and exceptions
+- Let the  
+
+## Authentication & Authorization 
+- Client credential authentication using the Identity application
+- Policies checking for claims, based on the role customer or manager  
+
+## Exposed end-points
+- Rest API exposed using the FastAPI
+
+## Mapping
+- Classes must be mapped using the Mapster 
+- Implement the profile pattern injected in the DI
+
+## Internal service integration
+- Use the dapr client to call internal services, like Identity application
+
+## Secret Store
+- Use of the dapr client secret-store integration
+- Retrieve all secrets during application initialization and add to DI
+
 ## Validation Rules
+- Use of fluent validation defined in the DI
+- Use the validation pipeline behavior to validate commands, and responses
 - Prevent invalid order creation
 - Enforce business rules
 - Validate product availability
 - Check customer roles for status changes
 
-## Dapr Service Integration
+## Polly External Services Integration
 - Circuit breaker for Payment service
+- Locking mechanism to avoid double payment calling for the same order id;
 - Retry mechanisms
 - Timeout configurations
 - Async communication patterns
+
+## Persistency
+- Use of PostgreSQL to persist all domain models
+- Use Entity Framework
+- 
+
+## Recommended Tools
+- .NET 9 
+- ASP NET Core
+- FastAPI
+- MediatR
+- FluentValidation
+- Entity Framework Core
+- Mapster
+- Dapr
+- PostgreSQL
+- Docker
+- Kubernetes
+- Polly
