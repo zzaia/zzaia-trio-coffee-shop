@@ -3,43 +3,71 @@
 ## System Architecture Diagram
 
 ```mermaid
-graph TD
-    A[CoffeeShop.Wasm] -->|Authenticated Requests| B[CoffeeShop.BFF]
-    B -->|Authentication| C[CoffeeShop.Identity]
-    B -->|Order Placement| D[CoffeeShop.Order]
-    C -->|User Tokens| E[HashiCorp Vault]
-    D -->|Payment Processing| F[External Payment Service]
-    D -->|Notifications| G[External Notification Service]
-    H[CoffeeShop.AppHost] -->|Orchestration| A,B,C,D,E,F,G
+C4Context
+    title Coffee Shop System Architecture
 
-    subgraph Infrastructure
-        I[PostgreSQL]
-        J[Redis]
-        K[HashiCorp Vault]
-        L[Dapr Sidecar]
-    end
+    Person(user, "User", "Coffee shop customer")
 
-    B <-->|Aggregated Data| I
-    C <-->|User Data| I
-    D <-->|Order Data| I
-    C <-->|Token Caching| J
-    A,B,C,D -->|Secret Management| K
-    A,B,C,D -->|Service Communication| L
+    System_Boundary(frontend, "Frontend") {
+        Container(wasm, "CoffeeShop.Wasm", "Blazor WebAssembly", "Client application")
+    }
+
+    System_Boundary(api, "API Gateway") {
+        Container(bff, "CoffeeShop.BFF", "ASP.NET Core", "Ingress gateway and routing")
+    }
+
+    System_Boundary(services, "Services") {
+        Container(identity, "CoffeeShop.Identity", "ASP.NET Core", "Authentication and authorization")
+        Container(order, "CoffeeShop.Order", "ASP.NET Core", "Order management")
+    }
+
+    System_Boundary(infrastructure, "Infrastructure") {
+        ContainerDb(postgres, "PostgreSQL", "Database", "User and order data")
+        ContainerDb(redis, "Redis", "Cache", "Token caching")
+        Container(vault, "HashiCorp Vault", "Secrets", "Secret management")
+        Container(dapr, "Dapr", "Runtime", "Service communication")
+    }
+
+    System_Ext(payment, "Payment Service", "External payment processing")
+    System_Ext(notification, "Notification Service", "External notifications")
+
+    Rel(user, wasm, "Uses")
+    Rel(wasm, bff, "Authenticated requests", "HTTPS")
+    Rel(bff, identity, "User authentication", "OAuth2/OIDC")
+    Rel(bff, order, "Authenticated order requests", "HTTPS")
+    Rel(order, identity, "Service authentication", "client_credentials")
+    Rel(order, payment, "Payment processing", "HTTPS")
+    Rel(order, notification, "Send notifications", "HTTPS")
+
+    Rel(identity, postgres, "Read/Write user data", "SQL")
+    Rel(order, postgres, "Read/Write order data", "SQL")
+    Rel(identity, redis, "Cache tokens", "Redis Protocol")
+
+    Rel(bff, vault, "Get secrets", "HTTPS")
+    Rel(identity, vault, "Get secrets", "HTTPS")
+    Rel(order, vault, "Get secrets", "HTTPS")
+
+    Rel(bff, dapr, "Service invocation")
+    Rel(identity, dapr, "Service invocation")
+    Rel(order, dapr, "Service invocation")
+
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="2")
 ```
 
 ## Key Architectural Changes
-- **BFF as API Gateway**: All frontend requests now route through CoffeeShop.BFF
+- **BFF as Ingress Gateway**: All frontend requests route through CoffeeShop.BFF for authentication and routing only
+- **Service-to-Service Authentication**: CoffeeShop.Order uses client_credentials flow with CoffeeShop.Identity
 - **Replaced Azure Key Vault with HashiCorp Vault**
 - **Enhanced Secret Management with Dapr Secret Store Component**
 
 ## Updated Application Responsibilities
 
-### CoffeeShop.BFF (Enhanced Role)
-- Acts as primary API Gateway
-- Implements request routing and transformation
-- Handles token validation and forwarding
-- Aggregates responses from multiple services
-- Provides optimized, secure API for frontend
+### CoffeeShop.BFF (Ingress Gateway)
+- Acts as ingress gateway for frontend requests
+- Implements request routing to backend services
+- Handles user token validation and forwarding
+- No data aggregation - pure routing layer
+- Provides secure entry point for frontend
 
 ### CoffeeShop.SecretStore (New Component)
 - Self-hosted secret management using HashiCorp Vault
@@ -47,26 +75,33 @@ graph TD
 - Secure initialization and unsealing strategies
 - Integrates with Dapr Secret Store Component
 
+### CoffeeShop.Order (Service Authentication)
+- Authenticates with CoffeeShop.Identity using client_credentials grant
+- Machine-to-machine authentication for BFF requests
+- Independent service with dedicated database
+- Handles payment and notification integrations
+
 ## Technology Stack Updates
 - **Secret Management**: HashiCorp Vault (replaced Azure Key Vault)
-- **API Gateway Pattern**: Implemented with enhanced BFF
-- **Service Communication**: Maintained Dapr integration
-- **Orchestration**: Continued .NET Aspire support
+- **Ingress Pattern**: Implemented with lightweight BFF
+- **Service Communication**: Dapr integration with OAuth2 client_credentials
+- **Development Orchestration**: .NET Aspire AppHost (development environment only)
 
 ## Security Architecture Enhancements
 - Centralized secret management via HashiCorp Vault
-- Enhanced token handling through BFF
-- Reduced direct service exposure
-- Improved request validation at gateway layer
+- User authentication via OAuth2/OIDC through Identity service
+- Service-to-service authentication via client_credentials flow
+- BFF as ingress point - no direct service exposure
+- Request validation at gateway layer
 
 ## Communication Patterns
-- BFF acts as request aggregation and transformation layer
-- OAuth2/OIDC authentication preserved
-- Dapr for service invocation maintained
-- Enhanced distributed tracing capabilities
+- BFF acts as ingress and routing layer only
+- User authentication via OAuth2/OIDC
+- Service-to-service authentication via client_credentials
+- Dapr for service invocation
+- Distributed tracing capabilities
 
 ## Infrastructure Scalability
-- Stateless service design maintained
-- BFF provides additional scalability layer
-- Improved secret management flexibility
-- Cloud-native architecture preserved
+- Lightweight BFF ingress layer
+- Flexible secret management via HashiCorp Vault
+- Cloud-native architecture with Dapr and kubernetes
