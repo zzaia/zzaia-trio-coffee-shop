@@ -1,6 +1,6 @@
 # CoffeeShop.Identity - Authentication and Authorization Architecture
 
-This application is responsible to all users and applications authentication, authorization and identification.
+This application is responsible for all user and application authentication, authorization, and identification.
 
 ## C4 Model - Container Diagram
 

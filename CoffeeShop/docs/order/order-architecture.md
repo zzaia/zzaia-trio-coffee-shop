@@ -1,6 +1,6 @@
 # CoffeeShop.Order Detailed Architecture
 
-This is the order domain application responsible to to handle all order related operations. 
+This is the order domain application responsible for handling all order-related operations. 
 
 ## Trio Coffee Shop Challenge Description
 

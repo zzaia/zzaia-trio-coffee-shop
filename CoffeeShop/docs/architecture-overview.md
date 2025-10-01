@@ -1,6 +1,6 @@
 # Coffee Shop Order Management - System Architecture Overview
 
-This is an overview architecture of a coffee sho ordering system designed as microservice pattern.
+This is an overview architecture of a coffee shop ordering system designed as a microservice pattern.
 
 ## System Architecture Diagram
 
@@ -60,10 +60,10 @@ C4Context
 - Acts as ingress gateway for frontend requests
 - Implements request routing to backend services
 - Handles user token validation and forwarding to client credential authentication
-- Handling rate limiting, and circuit breaking
-- Aggregate data for front-end purpose 
+- Handles rate limiting and circuit breaking
+- Aggregates data for front-end purposes
 - Provides secure entry point for frontend
-- Provide flexible data access for front-end customized end-points 
+- Provides flexible data access through customized front-end endpoints
 - Can cache common responses to improve performance
 
 ### CoffeeShop.SecretStore

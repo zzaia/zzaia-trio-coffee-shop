@@ -175,11 +175,11 @@ kubectl apply -f manifests/
 
 ### Planned Features
 - **Blazor WebAssembly Frontend**: Rich SPA with real-time order tracking, GraphQL subscriptions
-- **Centralized Logging System**: Production ready centralized application logging system and analytics
-- **Payment Domain Service**: Implementation of a payment system that could handle blockchain payments 
-- **Infra Management**: Services like rancher, Grafana, Prometheus 
-- **LLM OpenAI Server**: Server responsible to expose a OpenAI spec API with running LLM models 
-- **AI Cognitive Service**: Domain service responsible to use LLM models in some cognitive functions like, ex. generate artistic and opinionated product suggestion, based on the wether     
+- **Centralized Logging System**: Production-ready centralized application logging system and analytics
+- **Payment Domain Service**: Implementation of a payment system that can handle blockchain payments
+- **Infra Management**: Services like Rancher, Grafana, and Prometheus
+- **LLM OpenAI Server**: Server responsible for exposing an OpenAI spec API with running LLM models
+- **AI Cognitive Service**: Domain service responsible for using LLM models in some cognitive functions, e.g., generate artistic and opinionated product suggestions based on the weather     
 
 ### Suggestion of AI/ML Integrations
 - **Demand Forecasting**: ML-based inventory prediction
