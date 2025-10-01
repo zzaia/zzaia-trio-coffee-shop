@@ -117,7 +117,7 @@ This project showcases the integration of AI-powered development workflows using
 
 ### Custom AI Workspace
 - **Repository**: [zzaia-agentic-workspace](https://github.com/raphael-pizzaia/zzaia-agentic-workspace)
-- **Toolset**: Claude Code with custom agents, slash commands, and output styles
+- **Toolset**: Claude Code with custom agents, slash commands, and templates 
 - **Workflow**: Multi-repository management, git worktrees, automated task orchestration
 
 ---
