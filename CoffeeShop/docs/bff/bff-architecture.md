@@ -150,7 +150,7 @@ CoffeeShop.BFF/
 ## Event driven design
 - Use of CQRS with mediator pattern
 - Use of pipeline behavior in mediator for validation and logging
-- Receive notifications from the notification system using Dapr
+- Receive notifications from the internal notification system using Dapr
 - Notify front-end applications with order change status using GraphQL
 
 ## Logging

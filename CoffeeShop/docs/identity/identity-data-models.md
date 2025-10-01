@@ -6,6 +6,7 @@
 erDiagram
     Users ||--o{ Orders : places
     Users ||--o{ RefreshTokens : owns
+    Applications ||--o{ ApplicationTokens : owns
 
     Users {
         uuid id PK
@@ -27,6 +28,23 @@ erDiagram
         timestamp expires_at
         timestamp created_at
         boolean is_revoked
+    }
+
+    Applications {
+        uuid id PK
+        string client_id
+        string client_secret_hash
+        string name
+        boolean is_active
+        timestamp created_at
+    }
+
+    ApplicationTokens {
+        uuid id PK
+        uuid application_id FK
+        string token_hash
+        timestamp expires_at
+        timestamp created_at
     }
 ```
 
@@ -104,3 +122,62 @@ Long-lived tokens for session management and token refresh flow.
 - Cache key: `refresh_token:{token_hash}`
 - TTL matches token expiration
 - Cache invalidated on revocation
+
+---
+
+### Applications Entity
+Represents service applications that authenticate using client credentials flow for service-to-service communication.
+
+**Key Attributes:**
+- `id` (UUID, PK): Unique identifier for the application
+- `client_id` (string, unique, required): Public application identifier
+- `client_secret_hash` (string, required): BCrypt hashed client secret
+- `name` (string, required): Application name (e.g., "Order Service", "BFF")
+- `is_active` (boolean, default: true): Application activation status
+- `created_at` (timestamp, required): Application registration timestamp
+
+**Business Rules:**
+- Client ID must be unique across all applications
+- Client secret hash must be generated using BCrypt (cost factor: 12)
+- Inactive applications cannot authenticate
+- Applications are manually registered by system administrators
+
+**Security Considerations:**
+- Client secret hashing: BCrypt with cost factor 12
+- Token-based authentication using OpenIddict
+- Short-lived access tokens (5 minutes)
+
+**Relationships:**
+- One application can have many tokens (1:N with ApplicationTokens)
+
+---
+
+### ApplicationTokens Entity
+Short-lived tokens for service-to-service authentication using client credentials flow.
+
+**Key Attributes:**
+- `id` (UUID, PK): Unique application token identifier
+- `application_id` (UUID, FK, required): Reference to the application
+- `token_hash` (string, required): SHA-256 hashed access token
+- `expires_at` (timestamp, required): Token expiration timestamp
+- `created_at` (timestamp, required): Token creation timestamp
+
+**Business Rules:**
+- Application tokens are short-lived (default: 5 minutes)
+- Tokens stored as SHA-256 hash for security
+- Expired tokens are purged via background job (retention: 1 day)
+- No token rotation (applications request new tokens when needed)
+
+**Security Considerations:**
+- Short expiration time for security
+- No refresh tokens for applications
+- Token binding to application identity
+
+**Relationships:**
+- Belongs to one application (N:1 with Applications)
+
+**Redis Caching:**
+- Active application tokens cached in Redis for fast validation
+- Cache key: `app_token:{token_hash}`
+- TTL matches token expiration
+- Cache invalidated on expiration

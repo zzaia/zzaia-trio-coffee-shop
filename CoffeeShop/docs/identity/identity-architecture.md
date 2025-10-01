@@ -106,6 +106,23 @@ sequenceDiagram
     Identity-->>Client: {access_token, refresh_token, token_type, expires_in}
 ```
 
+### Application Authentication Flow (Client Credentials)
+```mermaid
+sequenceDiagram
+    participant Application as Service Application (Order/BFF)
+    participant Identity as CoffeeShop.Identity
+    participant Postgres as PostgreSQL
+    participant Redis as Redis Cache
+
+    Application->>Identity: POST /connect/token (grant_type=client_credentials, client_id, client_secret)
+    Identity->>Postgres: Validate Client Credentials
+    Postgres-->>Identity: Application (id, client_id, name, is_active)
+    Identity->>Identity: Generate JWT (OpenIddict)
+    Identity->>Redis: Cache Application Token
+    Identity->>Postgres: Create ApplicationToken Record
+    Identity-->>Application: {access_token, token_type, expires_in}
+```
+
 ---
 
 ## Clean Architecture Layer Structure
@@ -115,7 +132,9 @@ CoffeeShop.Identity/
 ├── Domain/
 │   ├── Entities/
 │   │   ├── User.cs
-│   │   └── RefreshToken.cs
+│   │   ├── RefreshToken.cs
+│   │   ├── Application.cs
+│   │   └── ApplicationToken.cs
 │   ├── ValueObjects/
 │   │   ├── Email.cs
 │   │   └── Password.cs
@@ -128,15 +147,18 @@ CoffeeShop.Identity/
 │   ├── Commands/
 │   │   ├── RegisterUserCommand.cs
 │   │   ├── LoginCommand.cs
-│   │   └── RefreshTokenCommand.cs
+│   │   ├── RefreshTokenCommand.cs
+│   │   └── AuthenticateApplicationCommand.cs
 │   ├── Queries/
 │   │   ├── GetUserByIdQuery.cs
-│   │   └── ValidateTokenQuery.cs
+│   │   ├── ValidateTokenQuery.cs
+│   │   └── ValidateApplicationTokenQuery.cs
 │   ├── DTOs/
 │   │   ├── UserDto.cs
 │   │   └── TokenResponseDto.cs
 │   ├── Interfaces/
 │   │   ├── IUserRepository.cs
+│   │   ├── IApplicationRepository.cs
 │   │   └── ITokenService.cs
 │   └── Behaviors/
 │       ├── ValidationBehavior.cs
@@ -195,8 +217,8 @@ CoffeeShop.Identity/
 ## Event driven design
 - Use of CQRS with mediator pattern
 - Use of pipeline behavior in mediator for validation and logging
-- Publish notifications to the notification system using Dapr
-- Publish user events only to notification system
+- Publish notifications to the internal notification system using Dapr
+- Publish user events only to internal notification system
 
 ## Logging
 - Avoid logging throughout the code
@@ -271,6 +293,8 @@ CoffeeShop.Identity/
 - ASP.NET Core
 - MediatR
 - FluentValidation
+- Entity Framework Core
+- Npgsql
 - Mapster
 - Dapr
 - Docker

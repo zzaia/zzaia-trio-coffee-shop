@@ -92,7 +92,7 @@ Returns full information for a specific order:
 - **Manager Only**: Enforces role-based access control
 - Status transitions must follow strictly:
   - **Status Flow**: Waiting → Preparation → Ready → Delivered
-- **Critical Requirement**: Integrates with the notification service:
+- **Critical Requirement**: Integrates with the external notification service:
   - `POST https://challenge.trio.dev/api/v1/notification`
   - `{"status": "{ORDER_STATUS}"}`
   - Displays full notification response in the terminal
@@ -117,7 +117,7 @@ C4Container
 
     System_Ext(identityService, "Identity Service", "Authentication provider")
     System_Ext(paymentAPI, "Payment API", "Payment processing")
-    System_Ext(notificationAPI, "Notification API", "Status notifications")
+    System_Ext(notificationAPI, "External Notification API", "Status notifications")
     Container_Ext(dapr, "Dapr", "Service mesh runtime")
 
     Rel(customer, api, "Uses", "HTTPS/REST")
@@ -261,8 +261,9 @@ stateDiagram-v2
 ## Event driven design
 - Use of CQRS with mediator pattern
 - Use of pipeline behavior in mediator for validation and logging
-- Receive notifications from the notification system using Dapr
-- Update or create user information from events coming from the Identity application
+- Receive notifications from the internal notification system using Dapr
+- Update or create user information from events coming from the internal notification system 
+- Publish to external notification system using http + polly
 
 ## Logging
 - Avoid logging throughout the code
@@ -317,6 +318,7 @@ stateDiagram-v2
 - MediatR
 - FluentValidation
 - Entity Framework Core
+- Npgsql
 - Mapster
 - Dapr
 - PostgreSQL

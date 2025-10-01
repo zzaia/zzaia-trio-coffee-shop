@@ -1,5 +1,7 @@
 # Coffee Shop Order Management - System Architecture Overview
 
+This is an overview architecture of a coffee sho ordering system designed as microservice pattern.
+
 ## System Architecture Diagram
 
 ```mermaid
@@ -81,21 +83,14 @@ C4Context
 - Internal persistency of user information side-by-side token management
 - Can be used as Dapr internal service 
 
-## Security Architecture Enhancements
-- Centralized secret management via HashiCorp Vault
-- User authentication via OAuth2/OIDC through Identity service
-- Service-to-service authentication via client_credentials flow
-- BFF as ingress point - no direct service exposure
-- Request validation at gateway layer
-
-## Communication Patterns
-- BFF acts as ingress and routing layer only
-- User authentication via OAuth2/OIDC
-- Service-to-service authentication via client_credentials
-- Dapr for service invocation
-- Distributed tracing capabilities
-
-## Infrastructure Scalability
+## Infrastructure Overview 
+- User and application authentication through Identity service
 - Lightweight BFF ingress layer
-- Flexible secret management via HashiCorp Vault
+- Centralized secret management via HashiCorp Vault
 - Cloud-native architecture with Dapr and kubernetes
+- Redis as caching database
+- PostgresSQL as persistence database
+- Kafka as notification system
+
+## Development
+- ASPIRE for local cluster development
