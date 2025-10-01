@@ -1,8 +1,13 @@
 using Microsoft.Extensions.Hosting;
+using Zzaia.CoffeeShop.Order.Infrastructure;
+using Zzaia.CoffeeShop.Order.Infrastructure.Persistence;
+using Zzaia.CoffeeShop.ServiceDefaults.Persistence;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.AddPostgreSqlPersistence<OrderDbContext>("db-order");
+builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddOpenApi();
 

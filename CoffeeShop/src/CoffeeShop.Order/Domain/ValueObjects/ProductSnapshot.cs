@@ -10,27 +10,35 @@ public sealed class ProductSnapshot : ValueObject
     /// <summary>
     /// Gets the product identifier.
     /// </summary>
-    public Guid ProductId { get; }
+    public Guid ProductId { get; init; }
 
     /// <summary>
     /// Gets the product name.
     /// </summary>
-    public string Name { get; }
+    public string Name { get; init; }
 
     /// <summary>
     /// Gets the product description.
     /// </summary>
-    public string Description { get; }
+    public string Description { get; init; }
 
     /// <summary>
     /// Gets the unit price.
     /// </summary>
-    public Money UnitPrice { get; }
+    public Money UnitPrice { get; init; }
 
     /// <summary>
     /// Gets the variation name.
     /// </summary>
-    public string? VariationName { get; }
+    public string? VariationName { get; init; }
+
+    private ProductSnapshot()
+    {
+        ProductId = Guid.Empty;
+        Name = string.Empty;
+        Description = string.Empty;
+        UnitPrice = Money.Create(0);
+    }
 
     private ProductSnapshot(Guid productId, string name, string description, Money unitPrice, string? variationName)
     {

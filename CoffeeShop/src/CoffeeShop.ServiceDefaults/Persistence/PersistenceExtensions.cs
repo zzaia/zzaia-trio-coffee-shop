@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace Zzaia.CoffeeShop.ServiceDefaults.Persistence;
 
@@ -24,6 +25,35 @@ public static class PersistenceExtensions
         string? connectionString = builder.Configuration.GetConnectionString(connectionName);
         builder.Services.AddDbContext<DbContext, TContext>(options =>
             options.UseSqlServer(connectionString)); return builder;
+    }
+
+    /// <summary>
+    /// Adds a PostgreSQL DbContext with automatic migrations in Development environment.
+    /// </summary>
+    /// <typeparam name="TContext">The DbContext type to register</typeparam>
+    /// <param name="builder">The host application builder instance</param>
+    /// <param name="connectionName">The name of the connection string in configuration</param>
+    /// <returns>The builder instance for method chaining</returns>
+    public static IHostApplicationBuilder AddPostgreSqlPersistence<TContext>(
+        this IHostApplicationBuilder builder,
+        string connectionName)
+        where TContext : DbContext
+    {
+        string? connectionString = builder.Configuration.GetConnectionString(connectionName);
+        builder.Services.AddDbContext<TContext>(options =>
+        {
+            options.UseNpgsql(connectionString, npgsqlOptions =>
+            {
+                npgsqlOptions.MigrationsAssembly(typeof(TContext).Assembly.GetName().Name);
+                npgsqlOptions.EnableRetryOnFailure(3);
+            });
+            options.UseSnakeCaseNamingConvention();
+        });
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddHostedService<DatabaseMigrator<TContext>>();
+        }
+        return builder;
     }
 
     /// <summary>

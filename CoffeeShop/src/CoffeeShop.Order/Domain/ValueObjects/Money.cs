@@ -10,12 +10,18 @@ public sealed class Money : ValueObject
     /// <summary>
     /// Gets the amount.
     /// </summary>
-    public decimal Amount { get; }
+    public decimal Amount { get; init; }
 
     /// <summary>
     /// Gets the currency.
     /// </summary>
-    public string Currency { get; }
+    public string Currency { get; init; }
+
+    private Money()
+    {
+        Amount = 0;
+        Currency = "BRL";
+    }
 
     private Money(decimal amount, string currency)
     {
