@@ -21,8 +21,9 @@ Sequential implementation for Identity service with OpenIddict OAuth2/OIDC suppo
 
 ## Phase 2: Database Setup (2-3 days)
 
-- [ ] Configure PostgreSQL connection with Dapr secret store
+- [ ] Configure PostgreSQL connection with Dapr secret store (database: `db-identity`)
 - [ ] Create EF Core migrations (Users, RefreshTokens, Applications, ApplicationTokens, OpenIddict tables)
+- [ ] Seed Applications table with BFF-Customer and BFF-Manager client credentials
 - [ ] Configure indexes (unique on email/username/client_id, indexes on tokens)
 - [ ] Configure ServiceDefaults for auto-migrations
 - [ ] Test database connectivity

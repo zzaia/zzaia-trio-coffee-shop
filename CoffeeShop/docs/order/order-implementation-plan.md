@@ -21,7 +21,7 @@ Sequential implementation for Order service with payment integration and Kafka e
 
 ## Phase 2: Database Setup (2-3 days)
 
-- [ ] Configure PostgreSQL connection with Dapr secret store
+- [ ] Configure PostgreSQL connection with Dapr secret store (database: `db-order`)
 - [ ] Create EF Core migrations (Users, Orders, OrderItems, Products, ProductVariations)
 - [ ] Seed product catalog data via migration
 - [ ] Configure ServiceDefaults for auto-migrations
@@ -51,7 +51,9 @@ Sequential implementation for Order service with payment integration and Kafka e
 
 ## Phase 5: External Services (3-4 days)
 
-- [ ] Implement `PaymentService.cs` with Polly (circuit breaker, retry, timeout, locking)
+- [ ] Implement `PaymentService.cs` with Polly (circuit breaker: 5/30s, retry: 3x exp backoff, timeout: 30s)
+- [ ] Implement Redis distributed lock for payment (order_id key, 60s TTL)
+- [ ] Implement payment refund compensation logic (negative value, original transaction_id)
 - [ ] Implement `ExternalNotificationService.cs` with Polly
 - [ ] Create `IdentityServiceClient.cs` using Dapr service invocation
 - [ ] Configure client credentials authentication
@@ -77,7 +79,7 @@ Sequential implementation for Order service with payment integration and Kafka e
 - [ ] Implement `GET /orders/{id}` with authorization
 - [ ] Implement `GET /orders` (manager only)
 - [ ] Implement `PATCH /orders/{id}/status` (manager only, notification → event)
-- [ ] Configure FastAPI routing
+- [ ] Configure Minimal API routing with Swagger/OpenAPI
 
 ---
 

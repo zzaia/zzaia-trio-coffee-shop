@@ -51,18 +51,24 @@ erDiagram
 ## Entity Descriptions
 
 ### Users Entity
-Represents authenticated users in the coffee shop system with role-based access control.
+Denormalized user data synchronized from Identity service via Kafka events for local order operations.
 
 **Key Attributes:**
-- `id` (UUID, PK): Unique identifier for the user
-- `username` (string): User's display name for identification
-- `email` (string): User's email address for communication
-- `role` (string): Access level - either "customer" or "manager"
+- `id` (UUID, PK): Unique identifier synchronized from Identity service
+- `username` (string): User's display name
+- `email` (string): User's email address
+- `role` (string): Access level - "customer" or "manager"
+
+**Synchronization Strategy:**
+- Data replicated via eventual consistency from Identity service
+- Order service subscribes to Kafka events: `user.created`, `user.updated`, `user.deleted`
+- Local copy eliminates need for real-time Identity service queries during order operations
+- Updates applied asynchronously when user events are received
 
 **Business Rules:**
-- Role determines available operations (customers place orders, managers manage them)
-- Email must be unique across the system
-- Authentication managed by separate Identity Service
+- Users cannot be created or updated directly in Order service
+- All user mutations happen in Identity service and propagate via events
+- Role determines order authorization (customers: own orders, managers: all orders)
 
 **Relationships:**
 - One user can place many orders (1:N with Orders)

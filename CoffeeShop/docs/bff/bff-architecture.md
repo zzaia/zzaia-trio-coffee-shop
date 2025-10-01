@@ -157,8 +157,40 @@ CoffeeShop.BFF/
 - Avoid logging throughout the code
 - Use the logging pipeline behavior pattern to log commands, responses and exceptions  
 
-## Authentication & Authorization 
-- User authentication using the Identity application
+## Authentication & Authorization
+
+### User Authentication Flow
+1. Frontend sends user JWT token to BFF (from Identity service login)
+2. BFF validates JWT token locally (OpenIddict validation)
+3. BFF extracts user role from JWT claims (Customer or Manager)
+4. BFF selects appropriate client credentials based on user role:
+   - Customer role → Use `BFF-Customer` client credentials (role claim: "customer")
+   - Manager role → Use `BFF-Manager` client credentials (role claim: "manager")
+5. BFF obtains access token from Identity using selected client credentials
+6. BFF forwards request to Order service with BFF's access token (includes role claim)
+7. Order service validates BFF's token and authorizes based on role claim
+
+### Client Credentials Strategy
+- **BFF-Customer Application**: Used when proxying requests for customer users
+  - Client ID: `bff-customer`
+  - Token includes: `role: customer` claim
+  - Order service authorizes: View own orders, create orders
+- **BFF-Manager Application**: Used when proxying requests for manager users
+  - Client ID: `bff-manager`
+  - Token includes: `role: manager` claim
+  - Order service authorizes: View all orders, update order status
+
+### Token Flow
+```
+User → Frontend: Login (username/password)
+Frontend → Identity: POST /connect/token (password grant)
+Identity → Frontend: User JWT (role: customer/manager)
+Frontend → BFF: GraphQL request + User JWT
+BFF → Identity: POST /connect/token (client_credentials, client_id: bff-customer/bff-manager)
+Identity → BFF: BFF JWT (role: customer/manager)
+BFF → Order: Dapr invocation + BFF JWT
+Order: Validate BFF JWT, authorize based on role claim
+```
 
 ## Exposed end-points
 - Rest API exposed using the GraphQL 

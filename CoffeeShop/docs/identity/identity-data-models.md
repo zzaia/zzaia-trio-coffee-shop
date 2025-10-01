@@ -35,6 +35,7 @@ erDiagram
         string client_id
         string client_secret_hash
         string name
+        string role
         boolean is_active
         timestamp created_at
     }
@@ -84,9 +85,11 @@ Represents authenticated users in the identity system with essential profile and
 - One user can have many refresh tokens (1:N with RefreshTokens)
 
 **Synchronization with Order Service:**
-- User data is synchronized to Order service via message queue
-- Order service maintains denormalized user snapshot (username, email, role)
-- Changes to username, email, or role trigger sync events
+- User data is synchronized to Order service via Kafka (eventual consistency)
+- Identity publishes events: `user.created`, `user.updated`, `user.deleted`
+- Order service subscribes to user events and maintains local Users table (id, username, email, role)
+- No real-time queries to Identity service - all user data cached locally in Order service
+- Changes to username, email, or role trigger `user.updated` event
 
 ---
 
@@ -132,7 +135,8 @@ Represents service applications that authenticate using client credentials flow 
 - `id` (UUID, PK): Unique identifier for the application
 - `client_id` (string, unique, required): Public application identifier
 - `client_secret_hash` (string, required): BCrypt hashed client secret
-- `name` (string, required): Application name (e.g., "Order Service", "BFF")
+- `name` (string, required): Application name (e.g., "BFF-Customer", "BFF-Manager")
+- `role` (string, required): Application role claim - "customer" or "manager"
 - `is_active` (boolean, default: true): Application activation status
 - `created_at` (timestamp, required): Application registration timestamp
 
@@ -140,7 +144,13 @@ Represents service applications that authenticate using client credentials flow 
 - Client ID must be unique across all applications
 - Client secret hash must be generated using BCrypt (cost factor: 12)
 - Inactive applications cannot authenticate
-- Applications are manually registered by system administrators
+- Applications are pre-seeded during database migration
+- BFF uses two separate client credentials: BFF-Customer (role: customer) and BFF-Manager (role: manager)
+- Access tokens include role claim for downstream authorization
+
+**Pre-seeded Applications:**
+- `BFF-Customer`: Used when BFF proxies requests for customer users
+- `BFF-Manager`: Used when BFF proxies requests for manager users
 
 **Security Considerations:**
 - Client secret hashing: BCrypt with cost factor 12

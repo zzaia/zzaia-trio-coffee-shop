@@ -83,14 +83,16 @@ C4Context
 - Internal persistency of user information side-by-side token management
 - Can be used as Dapr internal service 
 
-## Infrastructure Overview 
+## Infrastructure Overview
 - User and application authentication through Identity service
 - Lightweight BFF ingress layer
 - Centralized secret management via HashiCorp Vault
-- Cloud-native architecture with Dapr and kubernetes
-- Redis as caching database
-- PostgresSQL as persistence database
-- Kafka as notification system
+- Cloud-native architecture with Dapr and Kubernetes
+- Redis as caching database (single instance, shared across services)
+- PostgreSQL as persistence database (single server, separate databases per service)
+  - `db-identity`: Identity service database
+  - `db-order`: Order service database
+- Kafka as event streaming notification system (3 brokers, replication factor 3)
 
 ## Development and deployment
 - .NET ASPIRE for local cluster development

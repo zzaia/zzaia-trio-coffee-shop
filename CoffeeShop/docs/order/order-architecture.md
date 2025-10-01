@@ -107,7 +107,7 @@ C4Container
     Person(manager, "Manager", "Coffee shop manager")
 
     Container_Boundary(orderBoundary, "Order Service") {
-        Container(api, "REST API", "ASP.NET Core, FastAPI", "Exposes order management endpoints")
+        Container(api, "REST API", "ASP.NET Core Minimal API", "Exposes order management endpoints with Swagger")
         Container(application, "Application Layer", "MediatR, FluentValidation", "Handles CQRS commands and queries")
         Container(domain, "Domain Layer", "C# Domain Models", "Core business logic and rules")
         Container(infrastructure, "Infrastructure Layer", "EF Core, HttpClient", "Data access and external integrations")
@@ -149,16 +149,23 @@ sequenceDiagram
     participant NotificationService as Notification Service
     participant Database as PostgreSQL
 
-    Note over Customer,Database: Customer Order Creation Flow
+    Note over Customer,Database: Customer Order Creation Flow with Compensation
     Customer->>BFF: POST /orders with order details
     BFF->>OrderService: Validate and process order
     OrderService->>OrderService: Validate order items
     OrderService->>OrderService: Calculate total price
-    OrderService->>PaymentService: Process payment (synchronous)
-    PaymentService-->>OrderService: Payment confirmation (success)
-    OrderService->>Database: Save order with status "Waiting"
-    OrderService-->>BFF: Order created response
-    BFF-->>Customer: Order confirmation
+    OrderService->>PaymentService: Process payment (synchronous, amount > 0)
+    PaymentService-->>OrderService: Payment confirmation (success, transaction_id)
+    OrderService->>Database: Save order with status "Waiting" + payment_transaction_id
+    alt Database save succeeds
+        OrderService-->>BFF: Order created response
+        BFF-->>Customer: Order confirmation
+    else Database save fails
+        OrderService->>PaymentService: Refund payment (amount < 0, original transaction_id)
+        PaymentService-->>OrderService: Refund confirmed
+        OrderService-->>BFF: Order creation failed (payment refunded)
+        BFF-->>Customer: Error (funds returned)
+    end
 
     Note over Manager,Database: Manager Status Update Flow (3 Sequential Requests)
     Manager->>BFF: PATCH /orders/{id}/status (Waiting → Preparation)
@@ -274,8 +281,8 @@ stateDiagram-v2
 - Policies checking for claims, based on the role customer or manager  
 
 ## Exposed end-points
-- Rest API exposed using the FastAPI
-- Exposed end-points using the Dapr
+- REST API exposed using ASP.NET Core Minimal API with Swagger documentation
+- Service invocation endpoints exposed using Dapr
 
 ## Mapping
 - Classes must be mapped using the Mapster 
@@ -297,11 +304,14 @@ stateDiagram-v2
 - Check customer roles for status changes
 
 ## Polly External Services Integration
-- Circuit breaker for Payment service
-- Locking mechanism to avoid double payment calling for the same order id;
-- Retry mechanisms
-- Timeout configurations
-- Async communication patterns
+- Circuit breaker for Payment service (5 failures in 30s → open for 60s)
+- Locking mechanism to avoid double payment (Redis distributed lock, order_id as key, 60s TTL)
+- Retry mechanism: 3 attempts with exponential backoff (1s, 2s, 4s)
+- Timeout: 30 seconds per payment request
+- Compensation logic: Refund payment (negative value) if order creation fails after successful payment
+- Payment service API:
+  - Charge: `POST /api/v1/payment { "value": 12.50 }` → returns `{ "transaction_id": "..." }`
+  - Refund: `POST /api/v1/payment { "value": -12.50, "original_transaction_id": "..." }`
 
 ## Persistency
 - Use of PostgreSQL to persist all domain models
@@ -312,9 +322,9 @@ stateDiagram-v2
 - Asynchronous queries for all database operations
 
 ## Recommended Tools
-- .NET 9 
-- ASP NET Core
-- FastAPI
+- .NET 9
+- ASP.NET Core Minimal API
+- Swashbuckle (Swagger/OpenAPI)
 - MediatR
 - FluentValidation
 - Entity Framework Core
