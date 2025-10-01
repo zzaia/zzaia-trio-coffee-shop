@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffeeShop.Wasm", "CoffeeSh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffeeShop.BFF", "CoffeeShop.BFF\CoffeeShop.BFF.csproj", "{31CD3D07-C4AA-413B-BD58-22827061AED6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffeeShop.Identity", "CoffeeShop.Identity\CoffeeShop.Identity.csproj", "{5F5AA782-CB89-49A5-A326-D81DB0040778}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,18 @@ Global
 		{31CD3D07-C4AA-413B-BD58-22827061AED6}.Release|x64.Build.0 = Release|Any CPU
 		{31CD3D07-C4AA-413B-BD58-22827061AED6}.Release|x86.ActiveCfg = Release|Any CPU
 		{31CD3D07-C4AA-413B-BD58-22827061AED6}.Release|x86.Build.0 = Release|Any CPU
+		{5F5AA782-CB89-49A5-A326-D81DB0040778}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F5AA782-CB89-49A5-A326-D81DB0040778}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F5AA782-CB89-49A5-A326-D81DB0040778}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5F5AA782-CB89-49A5-A326-D81DB0040778}.Debug|x64.Build.0 = Debug|Any CPU
+		{5F5AA782-CB89-49A5-A326-D81DB0040778}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5F5AA782-CB89-49A5-A326-D81DB0040778}.Debug|x86.Build.0 = Debug|Any CPU
+		{5F5AA782-CB89-49A5-A326-D81DB0040778}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F5AA782-CB89-49A5-A326-D81DB0040778}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F5AA782-CB89-49A5-A326-D81DB0040778}.Release|x64.ActiveCfg = Release|Any CPU
+		{5F5AA782-CB89-49A5-A326-D81DB0040778}.Release|x64.Build.0 = Release|Any CPU
+		{5F5AA782-CB89-49A5-A326-D81DB0040778}.Release|x86.ActiveCfg = Release|Any CPU
+		{5F5AA782-CB89-49A5-A326-D81DB0040778}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

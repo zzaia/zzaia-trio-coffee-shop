@@ -12,18 +12,15 @@ public static class LLMInjection
     /// Adds the LLM (Large Language Model) Python FastAPI service with Dapr sidecar
     /// </summary>
     /// <param name="builder">The distributed application builder</param>
-    /// <param name="keyVaultName">Azure Key Vault name for secrets</param>
     /// <returns>The distributed application builder for chaining</returns>
     public static IDistributedApplicationBuilder AddLLMApplication(
-        this IDistributedApplicationBuilder builder,
-        string keyVaultName)
+        this IDistributedApplicationBuilder builder)
     {
         string namespaceName = "coffee-shop";
         string appName = $"{namespaceName}-llm";
         string resourcesPath = @"Applications\LLM\Dapr";
         FileHelper.ReplaceVariablesInYamlFiles([resourcesPath], new Dictionary<string, string>
         {
-            ["__VAULT_NAME__"] = keyVaultName,
             ["__NAMESPACE__"] = namespaceName,
             ["__DAPR_APP_ID__"] = appName,
         });

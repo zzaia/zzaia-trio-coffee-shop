@@ -1,30 +1,30 @@
 using CommunityToolkit.Aspire.Hosting.Dapr;
 using Zzaia.CoffeeShop.AppHost.Helpers;
 
-namespace Zzaia.CoffeeShop.AppHost.Applications.Order;
+namespace Zzaia.CoffeeShop.AppHost.Applications.Identity;
 
 /// <summary>
-/// Extension methods for adding Order service to the distributed application
+/// Extension methods for adding Identity service to the distributed application
 /// </summary>
-public static class OrderInjection
+public static class IdentityInjection
 {
     /// <summary>
-    /// Adds the Order service with Dapr sidecar, PostgreSQL database, Redis cache, and Kafka messaging
+    /// Adds the Identity service with Dapr sidecar, PostgreSQL database, Redis cache, and Kafka messaging
     /// </summary>
     /// <param name="builder">The distributed application builder</param>
     /// <param name="database">PostgreSQL database resource</param>
     /// <param name="redis">Redis cache resource</param>
     /// <param name="kafka">Kafka messaging resource</param>
     /// <returns>The distributed application builder for chaining</returns>
-    public static IDistributedApplicationBuilder AddOrderApplication(
+    public static IDistributedApplicationBuilder AddIdentityApplication(
         this IDistributedApplicationBuilder builder,
         IResourceBuilder<PostgresDatabaseResource> database,
         IResourceBuilder<RedisResource> redis,
         IResourceBuilder<KafkaServerResource> kafka)
     {
         string namespaceName = "coffee-shop";
-        string appName = $"{namespaceName}-order";
-        string resourcesPath = @"Applications\Order\Dapr";
+        string appName = $"{namespaceName}-identity";
+        string resourcesPath = @"Applications\Identity\Dapr";
         FileHelper.ReplaceVariablesInYamlFiles([resourcesPath], new Dictionary<string, string>
         {
             ["__NAMESPACE__"] = namespaceName,
@@ -32,13 +32,13 @@ public static class OrderInjection
         });
         string fullDir = FileHelper.CombineCrossPlatformPath(AppContext.BaseDirectory, resourcesPath);
 
-        builder.AddProject<Projects.CoffeeShop_Order>(appName)
+        builder.AddProject<Projects.CoffeeShop_Identity>(appName)
                .WithDaprSidecar(new DaprSidecarOptions
                {
                    AppId = appName,
-                   DaprHttpPort = 3500,
-                   DaprGrpcPort = 50001,
-                   MetricsPort = 9091,
+                   DaprHttpPort = 3502,
+                   DaprGrpcPort = 50003,
+                   MetricsPort = 9093,
                    ResourcesPaths = [fullDir],
                })
                .WithReference(database)

@@ -12,7 +12,9 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="8.2.2" />
-    <PackageReference Include="Aspire.Hosting.SqlServer" Version="8.2.2" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.2.2" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="8.2.2" />
+    <PackageReference Include="Aspire.Hosting.Kafka" Version="8.2.2" />
     <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="8.2.1" />
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.3.2" />
     <PackageReference Include="Azure.Identity" Version="1.12.1" />
@@ -23,6 +25,7 @@
     <ProjectReference Include="..\CoffeeShop.Order\CoffeeShop.Order.csproj" />
     <ProjectReference Include="..\CoffeeShop.Wasm\CoffeeShop.Wasm.csproj" />
     <ProjectReference Include="..\CoffeeShop.BFF\CoffeeShop.BFF.csproj" />
+    <ProjectReference Include="..\CoffeeShop.Identity\CoffeeShop.Identity.csproj" />
   </ItemGroup>
 
 </Project>
