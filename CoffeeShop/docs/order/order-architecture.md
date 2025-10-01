@@ -262,8 +262,7 @@ stateDiagram-v2
 
 ## Logging
 - Avoid logging throughout the code
-- Use the logging pipeline behavior pattern to log commands, responses and exceptions
-- Let the  
+- Use the logging pipeline behavior pattern to log commands, responses and exceptions  
 
 ## Authentication & Authorization 
 - Client credential authentication using the Identity application

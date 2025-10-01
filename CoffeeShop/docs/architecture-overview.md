@@ -4,8 +4,6 @@
 
 ```mermaid
 C4Context
-    title Coffee Shop System Architecture
-
     Person(user, "User", "Coffee shop customer")
 
     System_Boundary(frontend, "Frontend") {
@@ -54,38 +52,34 @@ C4Context
     UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="2")
 ```
 
-## Key Architectural Changes
-- **BFF as Ingress Gateway**: All frontend requests route through CoffeeShop.BFF for authentication and routing only
-- **Service-to-Service Authentication**: CoffeeShop.Order uses client_credentials flow with CoffeeShop.Identity
-- **Replaced Azure Key Vault with HashiCorp Vault**
-- **Enhanced Secret Management with Dapr Secret Store Component**
-
-## Updated Application Responsibilities
+## Application Responsibilities
 
 ### CoffeeShop.BFF (Ingress Gateway)
 - Acts as ingress gateway for frontend requests
 - Implements request routing to backend services
-- Handles user token validation and forwarding
-- No data aggregation - pure routing layer
+- Handles user token validation and forwarding to client credential authentication
+- Handling rate limiting, and circuit breaking
+- Aggregate data for front-end purpose 
 - Provides secure entry point for frontend
+- Provide flexible data access for front-end customized end-points 
+- Can cache common responses to improve performance
 
-### CoffeeShop.SecretStore (New Component)
+### CoffeeShop.SecretStore
 - Self-hosted secret management using HashiCorp Vault
 - Centralized secret storage and retrieval
 - Secure initialization and unsealing strategies
 - Integrates with Dapr Secret Store Component
 
-### CoffeeShop.Order (Service Authentication)
+### CoffeeShop.Order
 - Authenticates with CoffeeShop.Identity using client_credentials grant
 - Machine-to-machine authentication for BFF requests
-- Independent service with dedicated database
+- Independent domain service with dedicated database
 - Handles payment and notification integrations
 
-## Technology Stack Updates
-- **Secret Management**: HashiCorp Vault (replaced Azure Key Vault)
-- **Ingress Pattern**: Implemented with lightweight BFF
-- **Service Communication**: Dapr integration with OAuth2 client_credentials
-- **Development Orchestration**: .NET Aspire AppHost (development environment only)
+### CoffeeShop.Identity
+- Handles all authentication flows, user authentication and client credentials
+- Internal persistency of user information side-by-side token management
+- Can be used as Dapr internal service 
 
 ## Security Architecture Enhancements
 - Centralized secret management via HashiCorp Vault
