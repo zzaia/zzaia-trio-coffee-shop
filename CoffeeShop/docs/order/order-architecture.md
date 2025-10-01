@@ -1,5 +1,7 @@
 # CoffeeShop.Order Detailed Architecture
 
+This is the order domain application responsible to to handle all order related operations. 
+
 ## Trio Coffee Shop Challenge Description
 
 The Trio Challenge consists of creating a RESTful coffee shop order management application.
@@ -259,6 +261,8 @@ stateDiagram-v2
 ## Event driven design
 - Use of CQRS with mediator pattern
 - Use of pipeline behavior in mediator for validation and logging
+- Receive notifications from the notification system using Dapr
+- Update or create user information from events coming from the Identity application
 
 ## Logging
 - Avoid logging throughout the code
@@ -270,6 +274,7 @@ stateDiagram-v2
 
 ## Exposed end-points
 - Rest API exposed using the FastAPI
+- Exposed end-points using the Dapr
 
 ## Mapping
 - Classes must be mapped using the Mapster 
@@ -280,7 +285,7 @@ stateDiagram-v2
 
 ## Secret Store
 - Use of the dapr client secret-store integration
-- Retrieve all secrets during application initialization and add to DI
+- Retrieve all secrets during application initialization and add to DI, scoped by application
 
 ## Validation Rules
 - Use of fluent validation defined in the DI
@@ -302,6 +307,8 @@ stateDiagram-v2
 - Use Entity Framework for database operations
 - Use the ServiceDefaults persistence extension to automatic apply migrations 
 - Use Entity Framework to insert the product data during the migrations
+- Optimized indexes for common queries
+- Asynchronous queries for all database operations
 
 ## Recommended Tools
 - .NET 9 
@@ -316,3 +323,4 @@ stateDiagram-v2
 - Docker
 - Kubernetes
 - Polly
+- Kafka
