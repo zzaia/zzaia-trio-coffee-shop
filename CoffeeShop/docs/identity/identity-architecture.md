@@ -22,8 +22,9 @@ C4Container
     ContainerDb(postgres, "PostgreSQL Database", "PostgreSQL 15", "Stores users, refresh tokens, OpenIddict data")
     ContainerDb(redis, "Redis Cache", "Redis 7", "Caches active tokens and user sessions")
 
-    Container_Ext(messageQueue, "Message Queue", "RabbitMQ/Azure Service Bus")
-    System_Ext(clients, "External Clients", "Blazor App, Order Service, Payment Service")
+    Container_Ext(dapr, "Dapr Sidecar", "Service mesh and pub/sub")
+    Container_Ext(kafka, "Kafka", "Event streaming and notifications")
+    System_Ext(clients, "External Clients", "BFF, Order Service")
 
     Rel(user, api, "Makes requests", "HTTPS/JSON")
     Rel(clients, api, "Authenticates/Validates", "HTTPS/JSON")
@@ -42,7 +43,8 @@ C4Container
     Rel(tokenService, redis, "Caches tokens", "StackExchange.Redis")
     Rel(authService, redis, "Validates cached tokens", "StackExchange.Redis")
 
-    Rel(eventPublisher, messageQueue, "Publishes events", "AMQP/Azure SDK")
+    Rel(eventPublisher, dapr, "Publishes events", "Dapr SDK")
+    Rel(dapr, kafka, "Pub/Sub", "Kafka Protocol")
 
     UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
 ```
@@ -54,14 +56,16 @@ sequenceDiagram
     participant Client
     participant Identity
     participant Postgres
-    participant MessageQueue
+    participant Dapr
+    participant Kafka
     participant OrderService
 
     Client->>Identity: POST /register
     Identity->>Postgres: Create User (email_verified=false, role="customer")
     Postgres-->>Identity: User Created
-    Identity->>MessageQueue: Publish UserCreated Event
-    MessageQueue-->>OrderService: Sync User Data
+    Identity->>Dapr: Publish user.created Event
+    Dapr->>Kafka: Publish to user.created Topic
+    Kafka-->>OrderService: Subscribe to user.created Event
     Identity-->>Client: 201 Created (email verification required)
 ```
 
