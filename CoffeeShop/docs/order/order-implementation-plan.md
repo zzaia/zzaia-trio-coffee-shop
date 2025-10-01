@@ -8,14 +8,14 @@ Sequential implementation for Order service with payment integration and Kafka e
 
 ---
 
-## Phase 1: Domain Layer (3-4 days)
+## Phase 1: Domain Layer (3-4 days) ✅
 
-- [ ] Create domain entities (`Order.cs`, `OrderItem.cs`, `Product.cs`, `ProductVariation.cs`)
-- [ ] Implement value objects (`Money.cs`, `Quantity.cs`, `ProductSnapshot.cs`)
-- [ ] Define `OrderStatus` enum (Waiting → Preparation → Ready → Delivered)
-- [ ] Create domain events (`OrderCreatedEvent`, `OrderStatusChangedEvent`)
-- [ ] Implement order aggregate business rules and validations
-- [ ] Write unit tests for domain logic
+- [x] Create domain entities (`Order.cs`, `OrderItem.cs`, `Product.cs`, `ProductVariation.cs`)
+- [x] Implement value objects (`Money.cs`, `Quantity.cs`, `ProductSnapshot.cs`)
+- [x] Define `OrderStatus` enum (Waiting → Preparation → Ready → Delivered)
+- [x] Create domain events (`OrderCreatedEvent`, `OrderStatusChangedEvent`)
+- [x] Implement order aggregate business rules and validations
+- [x] Write unit tests for domain logic
 
 ---
 
