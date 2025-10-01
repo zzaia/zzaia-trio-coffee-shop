@@ -92,5 +92,7 @@ C4Context
 - PostgresSQL as persistence database
 - Kafka as notification system
 
-## Development
-- ASPIRE for local cluster development
+## Development and deployment
+- .NET ASPIRE for local cluster development
+- Aspire8 for Kubernetes cluster deployment yaml file generation 
+

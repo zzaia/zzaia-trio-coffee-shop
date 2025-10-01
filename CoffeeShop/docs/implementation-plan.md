@@ -1,192 +1,200 @@
-# Coffee Shop Order Management Implementation Plan
+# Coffee Shop Order Management - Master Implementation Plan
 
-## Project Overview
-A comprehensive implementation plan for building a robust, scalable Coffee Shop Order Management system using modern .NET technologies and cloud-native architecture.
+## Overview
 
-## Implementation Phases and Diagram
+Comprehensive implementation plan for scalable Coffee Shop Order Management system using microservices architecture.
 
-```mermaid
-graph TD
-    A[Phase 1: Infrastructure Setup] --> B[Phase 2: CoffeeShop.BFF Design]
-    A --> C[Phase 3: CoffeeShop.Identity]
-    A --> D[Phase 4: CoffeeShop.SecretStore]
-    B --> E[Phase 5: CoffeeShop.Order Domain]
-    C --> F[Phase 6: Order CQRS Implementation]
-    D --> F
-    F --> G[Phase 7: API & Integrations]
-    G --> H[Phase 8: Integration & Testing]
-    H --> I[Phase 9: Documentation & Deployment]
-```
+**Duration**: 44-61 days (parallel) | **Tech**: .NET 9, OpenIddict, Kafka, Dapr, PostgreSQL 15, Redis 7, GraphQL
 
-## 1. Phase Breakdown and Detailed Tasks
+---
 
-### Phase 1: Infrastructure & Foundation Setup
-**Duration**: 3-5 days
-**Parallel Tasks**: ✅
-**Dependencies**: None
+## Phase 1: Infrastructure Setup (3-5 days)
 
-#### Infrastructure Tasks
-- [ ] 1.1 PostgreSQL AppHost Configuration
-  - Set up connection strings
-  - Configure connection pooling
-- [ ] 1.2 Redis Configuration
-  - Set up connection
-  - Configure caching strategies
-- [ ] 1.3 Dapr Component Configuration
-  - Install Dapr sidecars
-  - Configure service invocation components
-- [ ] 1.4 HashiCorp Vault Preparation
-  - Design secret hierarchy
-  - Prepare initialization scripts
-  - Create Dockerfile for Vault container
+**Parallel**: ✅ | **Team**: DevOps + Infrastructure Specialist
 
-### Phase 2: CoffeeShop.BFF Design
-**Duration**: 4-5 days
-**Parallel Tasks**: ✅
-**Dependencies**: Phase 1 Infrastructure
+- [ ] Setup PostgreSQL 15 with AppHost configuration
+- [ ] Setup Redis 7 for caching
+- [ ] Setup Kafka cluster for event streaming
+- [ ] Configure Dapr sidecars and components
+- [ ] Setup HashiCorp Vault for secret management
+- [ ] Configure .NET Aspire for local development
+- [ ] Prepare CI/CD pipeline structure
 
-#### BFF Implementation Tasks
-- [ ] 2.1 Request Routing Configuration
-  - Design routing strategy
-  - Implement YARP reverse proxy
-  - Configure service-specific routes
-- [ ] 2.2 Token Management
-  - Implement token validation middleware
-  - Design token forwarding mechanism
-- [ ] 2.3 Response Transformation
-  - Create response aggregation logic
-  - Implement cross-cutting concerns
-- [ ] 2.4 Security Configuration
-  - Implement rate limiting
-  - Configure CORS
-  - Add request validation
+---
 
-### Phase 3: CoffeeShop.Identity Implementation
-**Duration**: 5-7 days
-**Parallel Tasks**: ✅
-**Dependencies**: Phase 2 BFF
+## Phase 2: Service Development (29-38 days)
 
-#### Identity Service Tasks
-- [ ] 3.1 Duende IdentityServer Configuration
-  - Update client configurations for BFF
-  - Modify token generation flows
-- [ ] 3.2 Token Handling
-  - Implement enhanced token management
-  - Configure token validation for BFF
-- [ ] 3.3 Database Integration Updates
-  - Adjust PostgreSQL identity schema
-  - Update EF Core migrations
+**Parallel**: ✅ | **Team**: 3 Backend Developers (parallel tracks)
 
-### Phase 4: CoffeeShop.SecretStore
-**Duration**: 3-4 days
-**Parallel Tasks**: ✅
-**Dependencies**: Phase 1 Infrastructure
+### 2A: Identity Service (29-38 days)
+**Reference**: `docs/identity/identity-implementation-plan.md`
 
-#### Secret Management Tasks
-- [ ] 4.1 HashiCorp Vault Setup
-  - Create Dockerfile
-  - Implement initialization scripts
-  - Design secret hierarchy
-- [ ] 4.2 Dapr Secret Store Integration
-  - Configure Vault as Dapr secret store
-  - Implement secret retrieval methods
-- [ ] 4.3 Secret Rotation Strategy
-  - Design key rotation mechanism
-  - Implement secure unsealing process
+- [ ] Domain Layer (2-3 days)
+- [ ] Database & Redis (3-5 days)
+- [ ] OpenIddict Configuration (3-4 days)
+- [ ] User Authentication ROPC Flow (3-4 days)
+- [ ] Client Credentials Flow (2-3 days)
+- [ ] Kafka Event Publishing (2-3 days)
+- [ ] API Endpoints (2-3 days)
+- [ ] Testing & Deployment (6-8 days)
 
-### Phase 5: CoffeeShop.Order Domain Layer
-**Duration**: 4-6 days
-**Parallel Tasks**: ✅
-**Dependencies**: Phase 3 Identity
+**Outputs**: OAuth2/OIDC endpoints, user registration/auth, service-to-service auth, user lifecycle events
 
-#### Domain Modeling Tasks
-- [ ] 5.1 Update Domain Entities
-  - Modify Order aggregate for BFF compatibility
-  - Adjust value objects
-- [ ] 5.2 Service Layer Updates
-  - Refactor order creation service
-  - Enhance business rule validation
+---
 
-### Phase 6: CoffeeShop.Order CQRS Implementation
-**Duration**: 5-7 days
-**Parallel Tasks**: ✅
-**Dependencies**: Phase 5 Domain Layer
+### 2B: Order Service (29-38 days)
+**Reference**: `docs/order/order-implementation-plan.md`
 
-#### CQRS Tasks
-- [ ] 6.1 Command Handlers Update
-  - Modify CreateOrder command for BFF
-  - Enhance command validation
-- [ ] 6.2 Query Handlers Refinement
-  - Update order lookup queries
-  - Optimize filtering mechanisms
+- [ ] Domain Layer (3-4 days)
+- [ ] Database Setup (2-3 days)
+- [ ] Application Commands & Queries (5-7 days)
+- [ ] External Services Integration (3-4 days)
+- [ ] Kafka Event Publishing (2-3 days)
+- [ ] API Endpoints (3-4 days)
+- [ ] Authentication & Authorization (2-3 days)
+- [ ] Testing & Deployment (6-8 days)
 
-### Phase 7: API & Integrations
-**Duration**: 4-6 days
-**Parallel Tasks**: ✅
-**Dependencies**: Phase 3, 4, 6
+**Outputs**: 5 REST endpoints, payment integration, notification service, order events, user event subscription
 
-#### API Development Tasks
-- [ ] 7.1 Controller Modifications
-  - Update RESTful endpoints for BFF
-  - Implement comprehensive documentation
-- [ ] 7.2 External Integrations
-  - Reconfigure payment processing
-  - Update notification service integrations
+---
 
-### Phase 8: Integration & Testing
-**Duration**: 5-7 days
-**Parallel Tasks**: ✅
-**Dependencies**: Previous Phases
+### 2C: BFF Service (27-35 days, start 1 week after services)
+**Reference**: `docs/bff/bff-implementation-plan.md`
 
-#### Integration Tasks
-- [ ] 8.1 Frontend Integration
-  - Update Wasm authentication flows
-  - Validate BFF service integration
-- [ ] 8.2 Comprehensive Testing
-  - Develop BFF-specific tests
-  - Update integration test suites
-- [ ] 8.3 Performance Testing
-  - Benchmark BFF request routing
-  - Validate secret management performance
+- [ ] Domain Layer (2 days)
+- [ ] Service Interfaces (2 days)
+- [ ] Dapr Service Invocation (3-4 days)
+- [ ] Redis Caching (2-3 days)
+- [ ] GraphQL Schema (3-4 days)
+- [ ] Event Subscriptions (2-3 days)
+- [ ] Authentication (2-3 days)
+- [ ] Testing & Deployment (6-8 days)
 
-### Phase 9: Documentation & Deployment
-**Duration**: 3-4 days
-**Parallel Tasks**: ✅
-**Dependencies**: All Previous Phases
+**Outputs**: GraphQL endpoint, Dapr service invocation, Redis caching, real-time subscriptions, rate limiting
 
-#### Deployment Preparation
-- [ ] 9.1 Documentation Updates
-  - Update architectural diagrams
-  - Document BFF and secret management
-- [ ] 9.2 CI/CD Configuration
-  - Update GitHub Actions
-  - Configure Vault deployment pipeline
+---
 
-## Project Statistics
-- **Total Phases**: 9
-- **Estimated Total Implementation Time**: 36-48 days
-- **Critical Path Components**:
-  1. BFF Design
-  2. Secret Management
-  3. Identity Service Reconfiguration
-- **Parallel Execution Opportunities**: 6
+## Phase 3: Integration & Testing (5-7 days)
 
-## Technology Stack Updates
-- .NET 8
-- Duende IdentityServer
-- HashiCorp Vault
-- Dapr
-- YARP Reverse Proxy
+**Parallel**: ❌ | **Team**: All Developers + QA | **Dependencies**: Phase 2
 
-## Recommended Team Structure
-- 1 Infrastructure Specialist
-- 2 Backend Developers
-- 1 Frontend Developer
-- 1 DevOps Engineer
+- [ ] End-to-end integration testing (registration → login → order → delivery)
+- [ ] Test all GraphQL operations and event-driven flows
+- [ ] Cross-service integration (BFF ↔ Identity, BFF ↔ Order, Order ↔ Identity)
+- [ ] Event flow validation (user events, order events)
+- [ ] Performance testing (load tests, GraphQL benchmarks, circuit breaker behavior)
+- [ ] Validate Redis cache effectiveness
+
+---
+
+## Phase 4: Frontend Integration (4-6 days)
+
+**Parallel**: ❌ | **Team**: Frontend + Backend Developer 3 | **Dependencies**: Phase 3
+
+- [ ] Blazor WASM authentication flow (login/registration via GraphQL, token management)
+- [ ] Menu and order management UI (GraphQL queries, order creation/tracking)
+- [ ] Real-time notifications (GraphQL subscriptions for order status changes)
+- [ ] Error handling and UX polish
+
+---
+
+## Phase 5: Documentation & Deployment (3-5 days)
+
+**Parallel**: ❌ | **Team**: All team members | **Dependencies**: Phase 4
+
+- [ ] Update architecture documentation
+- [ ] API documentation (GraphQL schema, REST endpoints)
+- [ ] Deployment guides (Kubernetes, Aspire)
+- [ ] Operations runbooks (monitoring, troubleshooting)
+- [ ] Generate Kubernetes manifests with Aspire8
+- [ ] Setup production CI/CD pipelines
+- [ ] Production deployment validation
+
+---
+
+## Technology Stack
+
+**Core**: .NET 9, ASP.NET Core, Blazor WebAssembly, HotChocolate GraphQL, OpenIddict OAuth2/OIDC
+
+**Data**: PostgreSQL 15, Redis 7, Entity Framework Core, Npgsql
+
+**Messaging**: Kafka, Dapr (service mesh & pub/sub)
+
+**Patterns**: MediatR (CQRS), FluentValidation, Mapster, Polly (resilience), BCrypt.Net
+
+**DevOps**: .NET Aspire, Aspire8, Docker, Kubernetes, HashiCorp Vault
+
+---
+
+## Timeline Summary
+
+**Parallel Execution**: ~44-61 days
+
+**Sequential Execution**: ~93-123 days
+
+**Time Saved**: ~49-62 days (50-53% reduction)
+
+---
+
+## Team Structure
+
+### Recommended (Parallel)
+- 1 Infrastructure/DevOps Engineer
+- 3 Backend Developers (Identity, Order, BFF)
+- 1 Frontend Developer (Blazor WASM)
 - 1 QA Specialist
 
-## Risk Mitigation Strategies
-- Incremental BFF implementation
-- Comprehensive secret management testing
-- Gradual migration from Azure Key Vault
-- Continuous performance monitoring
+### Minimum (Sequential)
+- 1 Full-Stack Developer
+- 1 DevOps Engineer
+
+---
+
+## Success Criteria
+
+**Technical**
+- ✅ Clean Architecture compliance
+- ✅ Event-driven architecture with Kafka
+- ✅ Service resilience (circuit breakers, retries, timeouts)
+- ✅ Test coverage >80%
+- ✅ Security (OAuth2, BCrypt, rate limiting)
+
+**Operational**
+- ✅ Dapr service mesh operational
+- ✅ Kafka event streaming reliable
+- ✅ Secret management with Vault
+- ✅ Kubernetes deployment with Aspire8
+- ✅ CI/CD pipelines automated
+
+**Business**
+- ✅ All 5 REST endpoints functional
+- ✅ GraphQL API for frontend
+- ✅ Real-time order notifications
+- ✅ Payment integration operational
+- ✅ Role-based access control (Customer, Manager)
+
+---
+
+## Risk Mitigation
+
+**Service integration complexity** → Early integration testing, API contracts
+
+**Kafka event reliability** → Idempotent handlers, message deduplication
+
+**Performance bottlenecks** → Load testing, Redis caching, query optimization
+
+**Parallel development coordination** → Daily standups, upfront API contract agreement
+
+**Testing coverage gaps** → Automated test requirements per phase
+
+**Deployment complexity** → .NET Aspire local validation, Aspire8 Kubernetes generation
+
+---
+
+## Next Steps
+
+1. Review individual service plans (`docs/identity/`, `docs/order/`, `docs/bff/`)
+2. Assign development teams to parallel tracks
+3. Execute Phase 1 (Infrastructure)
+4. Begin Phase 2 (Parallel service development)
+5. Execute Phases 3-5 (Sequential integration & deployment)

@@ -1,121 +1,134 @@
 # CoffeeShop.Order Implementation Plan
 
-## Implementation Phases
+## Overview
 
-```mermaid
-gantt
-    title CoffeeShop Order Implementation Roadmap
-    dateFormat  YYYY-MM-DD
-    section Domain Model
-    Domain Entities           :active, dm1, 2024-02-01, 5d
-    Value Objects             :active, dm2, after dm1, 3d
-    Domain Events             :active, dm3, after dm2, 2d
+Sequential implementation for Order service with payment integration and Kafka event publishing via Dapr.
 
-    section Business Logic
-    Pricing Engine            :crit, pe1, 2024-02-10, 4d
-    Order Status Validation   :crit, pe2, after pe1, 3d
-    Business Rule Validation  :pe3, after pe2, 3d
+**Duration**: 29-38 days | **Tech**: .NET 9, EF Core, PostgreSQL 15, MediatR, FluentValidation, Mapster, Dapr, Polly, Kafka
 
-    section CQRS Architecture
-    Command Handlers          :ch1, 2024-02-20, 5d
-    Query Handlers            :ch2, after ch1, 4d
-    Validation Behaviors      :ch3, after ch2, 3d
+---
 
-    section API Development
-    GET /menu Endpoint        :api1, 2024-03-01, 3d
-    POST /orders Endpoint     :api2, after api1, 4d
-    GET /orders/{id} Endpoint :api3, after api2, 3d
-    PATCH /orders/{id}/status :api4, after api3, 3d
+## Phase 1: Domain Layer (3-4 days)
 
-    section External Integration
-    Payment Service Integration   :ext1, 2024-03-15, 4d
-    Notification Service          :ext2, after ext1, 3d
-    Circuit Breaker Configuration :ext3, after ext2, 2d
+- [ ] Create domain entities (`Order.cs`, `OrderItem.cs`, `Product.cs`, `ProductVariation.cs`)
+- [ ] Implement value objects (`Money.cs`, `Quantity.cs`, `ProductSnapshot.cs`)
+- [ ] Define `OrderStatus` enum (Waiting → Preparation → Ready → Delivered)
+- [ ] Create domain events (`OrderCreatedEvent`, `OrderStatusChangedEvent`)
+- [ ] Implement order aggregate business rules and validations
+- [ ] Write unit tests for domain logic
 
-    section Security
-    Role-Based Access Control     :sec1, 2024-03-25, 3d
-    JWT Authentication            :sec2, after sec1, 3d
-    Endpoint Authorization        :sec3, after sec2, 2d
+---
 
-    section Testing
-    Unit Tests                    :test1, 2024-04-01, 5d
-    Integration Tests             :test2, after test1, 4d
-    Performance Tests             :test3, after test2, 3d
-    Validation Tests              :test4, after test3, 3d
-```
+## Phase 2: Database Setup (2-3 days)
 
-## Detailed Implementation Checklist
+- [ ] Configure PostgreSQL connection with Dapr secret store
+- [ ] Create EF Core migrations (Users, Orders, OrderItems, Products, ProductVariations)
+- [ ] Seed product catalog data via migration
+- [ ] Configure ServiceDefaults for auto-migrations
+- [ ] Test database connectivity and data integrity
 
-### Phase 1: Domain Model & Entities
-- [ ] Create `Order` aggregate root
-- [ ] Implement `OrderItem` entity
-- [ ] Define `Money` value object
-- [ ] Create `ProductSnapshot` value object
-- [ ] Design order status state machine
-- [ ] Implement immutable domain entities
+---
 
-### Phase 2: Pricing Calculation Engine
-- [ ] Design pricing calculation strategy
-- [ ] Implement base price calculation
-- [ ] Add support for product variations
-- [ ] Create total price calculation method
-- [ ] Validate pricing rules
-- [ ] Add pricing validation tests
+## Phase 3: Application Commands (3-4 days)
 
-### Phase 3: CQRS Commands/Queries
-- [ ] Implement `CreateOrderCommand`
-- [ ] Create `UpdateOrderStatusCommand`
-- [ ] Design `GetMenuQuery`
-- [ ] Implement `GetOrderByIdQuery`
-- [ ] Add command and query handlers
-- [ ] Implement MediatR pipeline behaviors
+- [ ] Implement `CreateOrderCommand` with FluentValidation and payment integration
+- [ ] Implement `UpdateOrderStatusCommand` with status transition validation
+- [ ] Configure MediatR pipeline behaviors (ValidationBehavior, LoggingBehavior)
+- [ ] Create repository interfaces (`IOrderRepository`, `IProductRepository`)
+- [ ] Write unit tests for command handlers
 
-### Phase 4: API Endpoints
-- [ ] Develop `GET /menu` endpoint
-  - Retrieve product catalog with variations
-- [ ] Implement `POST /orders` endpoint
-  - Validate order items
-  - Calculate total price
-  - Save order details
-- [ ] Create `GET /orders/{id}` endpoint
-  - Retrieve order details
-  - Support role-based access
-- [ ] Build `PATCH /orders/{id}/status` endpoint
-  - Update order status
-  - Manager role restriction
+---
 
-### Phase 5: External Service Integration
-- [ ] Implement Payment service integration
-  - Configure Dapr service invocation
-  - Add circuit breaker
-  - Implement retry mechanism
-- [ ] Create Notification service integration
-  - Send order notifications
-  - Handle notification failures
+## Phase 4: Application Queries (2-3 days)
 
-### Phase 6: Role-Based Access Control
-- [ ] Configure JWT token parsing
-- [ ] Implement role extraction from headers
-- [ ] Add authorization filters
-- [ ] Create custom authorization attributes
-- [ ] Validate role-specific access rules
+- [ ] Implement `GetMenuQuery` (products with variations)
+- [ ] Implement `GetOrderByIdQuery` with authorization check
+- [ ] Implement `GetAllOrdersQuery` (manager only, sorted by creation time)
+- [ ] Configure Mapster mapping profiles (entities → DTOs)
+- [ ] Write unit tests for query handlers
 
-### Phase 7: Status Transition Validation
-- [ ] Define valid order status transitions
-- [ ] Implement status change validation
-- [ ] Create domain logic for status updates
-- [ ] Add domain event for status changes
-- [ ] Implement compensation strategies
+---
 
-### Phase 8: Testing & Validation
-- [ ] Write unit tests for domain entities
-- [ ] Create integration tests for API endpoints
-- [ ] Implement performance benchmark tests
-- [ ] Add chaos testing for external services
-- [ ] Validate error handling scenarios
+## Phase 5: External Services (3-4 days)
+
+- [ ] Implement `PaymentService.cs` with Polly (circuit breaker, retry, timeout, locking)
+- [ ] Implement `ExternalNotificationService.cs` with Polly
+- [ ] Create `IdentityServiceClient.cs` using Dapr service invocation
+- [ ] Configure client credentials authentication
+- [ ] Test external service integration with mocks
+
+---
+
+## Phase 6: Event Publishing (2-3 days)
+
+- [ ] Configure Dapr pub/sub component for Kafka
+- [ ] Implement `EventPublisher.cs` using Dapr SDK
+- [ ] Publish `order.created` and `order.status.changed` events
+- [ ] Subscribe to `user.created`, `user.updated`, `user.deleted` from Identity
+- [ ] Update local user cache from events
+- [ ] Test event publishing and subscription
+
+---
+
+## Phase 7: API Endpoints (3-4 days)
+
+- [ ] Implement `GET /menu` endpoint with Swagger docs
+- [ ] Implement `POST /orders` (payment → create order → publish event)
+- [ ] Implement `GET /orders/{id}` with authorization
+- [ ] Implement `GET /orders` (manager only)
+- [ ] Implement `PATCH /orders/{id}/status` (manager only, notification → event)
+- [ ] Configure FastAPI routing
+
+---
+
+## Phase 8: Authentication & Authorization (2-3 days)
+
+- [ ] Configure JWT authentication middleware
+- [ ] Setup Identity service as authority
+- [ ] Implement client credentials token acquisition
+- [ ] Configure authorization policies (Customer, Manager)
+- [ ] Apply policies to endpoints
+
+---
+
+## Phase 9: Cross-Cutting Concerns (2-3 days)
+
+- [ ] Implement exception handling middleware (Problem Details RFC 7807)
+- [ ] Configure Serilog with correlation IDs
+- [ ] Implement Dapr secret store integration
+- [ ] Configure health checks (database, external services, Dapr sidecar)
+
+---
+
+## Phase 10: Testing (4-5 days)
+
+- [ ] Unit tests for domain layer (aggregates, value objects, business rules)
+- [ ] Unit tests for application layer (handlers with mocked dependencies)
+- [ ] Integration tests for API endpoints (TestContainers)
+- [ ] Integration tests for payment and notification (mocked services)
+- [ ] Integration tests for event publishing (mocked Kafka)
+- [ ] Integration tests for user event subscription
+- [ ] Load testing (order creation, status updates)
+
+---
+
+## Phase 11: Deployment (2-3 days)
+
+- [ ] Create multi-stage Dockerfile with security scanning
+- [ ] Configure .NET Aspire integration
+- [ ] Generate Kubernetes manifests with Aspire8
+- [ ] Setup CI/CD pipeline
+- [ ] Validate deployment
+
+---
 
 ## Success Criteria
-- [ ] All endpoints working as specified
-- [ ] 90% code coverage
-- [ ] Comprehensive logging and tracing
-- [ ] Resilient external service communication
+
+- ✅ All 5 REST endpoints functional
+- ✅ Payment integration with circuit breaker
+- ✅ External notification service integration
+- ✅ Kafka event publishing operational
+- ✅ User synchronization from Identity events
+- ✅ Test coverage >80%
+- ✅ Role-based authorization enforced
+- ✅ Deployment-ready with Kubernetes manifests
