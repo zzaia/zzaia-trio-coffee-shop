@@ -8,17 +8,47 @@ Comprehensive implementation plan for scalable Coffee Shop Order Management syst
 
 ---
 
+## Implementation Phase Hierarchy
+
+```mermaid
+gantt
+    title Implementation Timeline - Parallel vs Sequential
+    dateFormat YYYY-MM-DD
+
+    section Phase 1 (Parallel)
+    Infrastructure Setup                :active, infra, 2025-01-01, 5d
+
+    section Phase 2 (Parallel)
+    Identity Service                    :active, identity, after infra, 38d
+    Order Service                       :active, order, after infra, 38d
+    BFF Service (starts week 2)         :active, bff, 2025-01-13, 35d
+
+    section Phase 3 (Sequential)
+    Integration & Testing               :crit, integration, after bff, 7d
+
+    section Phase 4 (Sequential)
+    Frontend Integration                :crit, frontend, after integration, 6d
+
+    section Phase 5 (Sequential)
+    Documentation & Deployment          :crit, deployment, after frontend, 5d
+```
+
+**Legend**: Green (Active) = Parallel execution | Red (Critical) = Sequential execution | **Total**: 44-61 days
+
+---
+
 ## Phase 1: Infrastructure Setup (3-5 days)
 
 **Parallel**: ✅ | **Team**: DevOps + Infrastructure Specialist
 
 - [ ] Setup PostgreSQL 15 with AppHost configuration
-- [ ] Setup Redis 7 for caching
-- [ ] Setup Kafka cluster for event streaming
+- [ ] Setup Redis 7 for caching in AppHost
+- [ ] Setup Kafka cluster for event streaming in AppHost
 - [ ] Configure Dapr sidecars and components
-- [ ] Setup HashiCorp Vault for secret management
+- [ ] Setup HashiCorp Vault for secret management in AppHost
 - [ ] Configure .NET Aspire for local development
 - [ ] Prepare CI/CD pipeline structure
+- [ ] Create all application docker files to generate images
 
 ---
 
