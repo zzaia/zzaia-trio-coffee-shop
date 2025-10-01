@@ -3,8 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace CoffeeShop.Extensions.Persistence;
+namespace Zzaia.CoffeeShop.ServiceDefaults.Persistence;
 
 public static class PersistenceExtensions
 {

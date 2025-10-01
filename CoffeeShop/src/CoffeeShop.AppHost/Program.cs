@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Zzaia.CoffeeShop.AppHost.Applications.Order;
 using Zzaia.CoffeeShop.AppHost.Applications.Wasm;
 using Zzaia.CoffeeShop.AppHost.Applications.BFF;
@@ -23,8 +25,7 @@ IResourceBuilder<PostgresServerResource> postgres = builder
     .WithImage("postgres", "15-alpine")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithVolume("zzaia-coffee-shop-postgres-data", "/var/lib/postgresql/data")
-    .WithEnvironment("POSTGRES_DB", "coffeeshop")
-    .WithHealthCheck();
+    .WithEnvironment("POSTGRES_DB", "coffeeshop");
 
 IResourceBuilder<PostgresDatabaseResource> database = postgres.AddDatabase("CoffeeShopDb");
 
@@ -33,15 +34,13 @@ IResourceBuilder<RedisResource> redis = builder
     .AddRedis("redis-coffee-shop", port: 6379)
     .WithImage("redis", "7-alpine")
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithVolume("zzaia-coffee-shop-redis-data", "/data")
-    .WithHealthCheck();
+    .WithVolume("zzaia-coffee-shop-redis-data", "/data");
 
 // Kafka for Event Streaming
 IResourceBuilder<KafkaServerResource> kafka = builder
     .AddKafka("kafka-coffee-shop", port: 9092)
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithVolume("zzaia-coffee-shop-kafka-data", "/var/lib/kafka/data")
-    .WithHealthCheck();
+    .WithVolume("zzaia-coffee-shop-kafka-data", "/var/lib/kafka/data");
 
 // HashiCorp Vault for Secret Management (Development only)
 IResourceBuilder<ContainerResource>? vault = null;

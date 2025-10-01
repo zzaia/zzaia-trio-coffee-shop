@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.1.0" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -11,11 +12,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.2.2" />
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.2.2" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="8.2.2" />
-    <PackageReference Include="Aspire.Hosting.Kafka" Version="8.2.2" />
-    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="8.2.1" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.1.0" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.1.0" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="9.1.0" />
+    <PackageReference Include="Aspire.Hosting.Kafka" Version="9.1.0" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="9.2.0" />
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.3.2" />
     <PackageReference Include="Azure.Identity" Version="1.12.1" />
   </ItemGroup>
