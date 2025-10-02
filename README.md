@@ -15,7 +15,7 @@ Client demands a coffee shop system capable of managing orders, closing the gap 
 
 ## 🎯 Project Overview
 
-Production-ready coffee shop order management system built with modern microservices architecture, demonstrating enterprise-level design patterns, cloud-native deployment, and event-driven architecture.
+Coffee shop order management system built with modern microservices architecture, demonstrating enterprise-level design patterns, cloud-native deployment, and event-driven architecture.
 
 **Key Highlights**:
 - ✅ Clean Architecture with strict layer separation

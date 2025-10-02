@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using Zzaia.CoffeeShop.Order.Application;
 using Zzaia.CoffeeShop.Order.Infrastructure;
+using Zzaia.CoffeeShop.Order.Infrastructure.Middleware;
 using Zzaia.CoffeeShop.Order.Infrastructure.Persistence;
 using Zzaia.CoffeeShop.Order.Presentation.Endpoints;
 using Zzaia.CoffeeShop.ServiceDefaults.Persistence;
@@ -12,7 +14,27 @@ builder.AddPostgreSqlPersistence<OrderDbContext>("db-order");
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "CoffeeShop Order API",
+        Description = "RESTful API for managing coffee shop orders",
+        Contact = new OpenApiContact
+        {
+            Name = "CoffeeShop Team"
+        }
+    });
+    options.AddSecurityDefinition("Role", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "role",
+        Type = SecuritySchemeType.ApiKey,
+        Description = "User role (customer or manager)"
+    });
+});
 
 WebApplication app = builder.Build();
 
@@ -20,24 +42,18 @@ app.MapDefaultEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "CoffeeShop Order API v1");
+        options.RoutePrefix = string.Empty;
+    });
 }
 
+app.UseExceptionHandlingMiddleware();
 app.UseHttpsRedirection();
 
-app.MapGet("/health", () => new { status = "healthy", service = "CoffeeShop.Order" })
-    .WithName("GetHealth");
-
-app.MapGet("/orders", () => new[]
-{
-    new Order(1, "Espresso", 3.50m, DateTimeOffset.UtcNow),
-    new Order(2, "Cappuccino", 4.25m, DateTimeOffset.UtcNow.AddMinutes(-5)),
-    new Order(3, "Latte", 4.75m, DateTimeOffset.UtcNow.AddMinutes(-10))
-})
-.WithName("GetOrders");
-
+app.MapOrderEndpoints();
 app.MapUserEventSubscriptions();
 
 app.Run();
-
-record Order(int Id, string Name, decimal Price, DateTimeOffset CreatedAt);

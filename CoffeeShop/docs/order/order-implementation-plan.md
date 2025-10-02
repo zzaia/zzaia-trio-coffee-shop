@@ -72,14 +72,14 @@ Sequential implementation for Order service with payment integration and Kafka e
 
 ---
 
-## Phase 7: API Endpoints (3-4 days)
+## Phase 7: API Endpoints (3-4 days) ✅
 
-- [ ] Implement `GET /menu` endpoint with Swagger docs
-- [ ] Implement `POST /orders` (payment → create order → publish event)
-- [ ] Implement `GET /orders/{id}` with authorization
-- [ ] Implement `GET /orders` (manager only)
-- [ ] Implement `PATCH /orders/{id}/status` (manager only, notification → event)
-- [ ] Configure Minimal API routing with Swagger/OpenAPI
+- [x] Implement `GET /menu` endpoint with Swagger docs
+- [x] Implement `POST /orders` (payment → create order → publish event)
+- [x] Implement `GET /orders/{id}` with authorization
+- [x] Implement `GET /orders` (manager only)
+- [x] Implement `PATCH /orders/{id}/status` (manager only, notification → event)
+- [x] Configure Minimal API routing with Swagger/OpenAPI
 
 ---
 
