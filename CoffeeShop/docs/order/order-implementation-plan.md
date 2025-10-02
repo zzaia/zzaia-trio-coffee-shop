@@ -39,13 +39,13 @@ Sequential implementation for Order service with payment integration and Kafka e
 
 ---
 
-## Phase 4: Application Queries (2-3 days)
+## Phase 4: Application Queries (2-3 days) ✅
 
-- [ ] Implement `GetMenuQuery` (products with variations)
-- [ ] Implement `GetOrderByIdQuery` with authorization check
-- [ ] Implement `GetAllOrdersQuery` (manager only, sorted by creation time)
-- [ ] Configure Mapster mapping profiles (entities → DTOs)
-- [ ] Write unit tests for query handlers
+- [x] Implement `GetMenuQuery` (products with variations)
+- [x] Implement `GetOrderByIdQuery` with authorization check
+- [x] Implement `GetAllOrdersQuery` (manager only, sorted by creation time)
+- [x] Configure Mapster mapping profiles (entities → DTOs)
+- [x] Write unit tests for query handlers
 
 ---
 
