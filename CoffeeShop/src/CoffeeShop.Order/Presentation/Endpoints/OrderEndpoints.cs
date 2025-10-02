@@ -9,6 +9,7 @@ using Zzaia.CoffeeShop.Order.Application.Queries.GetAllOrders;
 using Zzaia.CoffeeShop.Order.Application.Queries.GetMenu;
 using Zzaia.CoffeeShop.Order.Application.Queries.GetOrderById;
 using Zzaia.CoffeeShop.Order.Domain.Enums;
+using Zzaia.CoffeeShop.Order.Infrastructure.Authentication;
 
 /// <summary>
 /// Defines REST API endpoints for order management.
@@ -29,6 +30,7 @@ public static class OrderEndpoints
             .WithName("GetMenu")
             .WithSummary("View the complete menu with products and variations")
             .WithDescription("Returns a complete list of products with base prices, all available variations, and price changes for each variation")
+            .AllowAnonymous()
             .Produces<MenuDto>(StatusCodes.Status200OK)
             .WithTags("Menu")
             .WithOpenApi();
@@ -37,8 +39,10 @@ public static class OrderEndpoints
             .WithName("CreateOrder")
             .WithSummary("Place a new order")
             .WithDescription("Accepts a list of products and variations, processes payment, and creates an order with status 'Waiting'")
+            .RequireAuthorization(AuthorizationPolicies.CustomerPolicy)
             .Produces<CreateOrderResponse>(StatusCodes.Status201Created)
             .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+            .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
             .Produces<ProblemDetails>(StatusCodes.Status422UnprocessableEntity)
             .WithOpenApi();
 
@@ -46,7 +50,9 @@ public static class OrderEndpoints
             .WithName("GetOrderById")
             .WithSummary("View order details")
             .WithDescription("Returns full information for a specific order including items, variations, pricing, status, and timestamp")
+            .RequireAuthorization(AuthorizationPolicies.CustomerPolicy)
             .Produces<OrderDto>(StatusCodes.Status200OK)
+            .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
             .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
             .Produces<ProblemDetails>(StatusCodes.Status403Forbidden)
             .WithOpenApi();
@@ -55,7 +61,9 @@ public static class OrderEndpoints
             .WithName("GetAllOrders")
             .WithSummary("List all orders (Manager only)")
             .WithDescription("Returns a list of all current orders sorted by creation time (oldest first). Requires manager role.")
+            .RequireAuthorization(AuthorizationPolicies.ManagerPolicy)
             .Produces<List<OrderDto>>(StatusCodes.Status200OK)
+            .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
             .Produces<ProblemDetails>(StatusCodes.Status403Forbidden)
             .WithOpenApi();
 
@@ -63,8 +71,10 @@ public static class OrderEndpoints
             .WithName("UpdateOrderStatus")
             .WithSummary("Update order status (Manager only)")
             .WithDescription("Updates order status following the sequence: Waiting → Preparation → Ready → Delivered. Requires manager role.")
+            .RequireAuthorization(AuthorizationPolicies.ManagerPolicy)
             .Produces(StatusCodes.Status204NoContent)
             .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+            .Produces<ProblemDetails>(StatusCodes.Status401Unauthorized)
             .Produces<ProblemDetails>(StatusCodes.Status403Forbidden)
             .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
             .WithOpenApi();
@@ -88,11 +98,13 @@ public static class OrderEndpoints
 
     private static async Task<IResult> CreateOrderAsync(
         [FromBody] CreateOrderRequest request,
-        [FromHeader(Name = "role")] string? role,
+        HttpContext httpContext,
         [FromServices] ISender mediator,
         CancellationToken cancellationToken)
     {
-        string userId = role?.ToLower() == "manager" ? "manager-user" : "customer-user";
+        string? userId = httpContext.User.FindFirst("sub")?.Value
+            ?? httpContext.User.FindFirst("userId")?.Value
+            ?? throw new InvalidOperationException("User ID not found in token");
         CreateOrderCommand command = new(
             userId,
             request.Items.Select(item => new OrderItemRequest(
@@ -114,11 +126,13 @@ public static class OrderEndpoints
 
     private static async Task<IResult> GetOrderByIdAsync(
         [FromRoute] Guid id,
-        [FromHeader(Name = "role")] string? role,
+        HttpContext httpContext,
         [FromServices] ISender mediator,
         CancellationToken cancellationToken)
     {
-        string userId = role?.ToLower() == "manager" ? "manager-user" : "customer-user";
+        string? userId = httpContext.User.FindFirst("sub")?.Value
+            ?? httpContext.User.FindFirst("userId")?.Value
+            ?? throw new InvalidOperationException("User ID not found in token");
         GetOrderByIdQuery query = new(id, userId);
         Result<OrderDto> result = await mediator.Send(query, cancellationToken);
         if (!result.IsSuccess)
@@ -132,18 +146,13 @@ public static class OrderEndpoints
     }
 
     private static async Task<IResult> GetAllOrdersAsync(
-        [FromHeader(Name = "role")] string? role,
+        HttpContext httpContext,
         [FromServices] ISender mediator,
         CancellationToken cancellationToken)
     {
-        if (role?.ToLower() != "manager")
-        {
-            return Results.Problem(
-                statusCode: StatusCodes.Status403Forbidden,
-                title: "Access denied",
-                detail: "This endpoint requires manager role");
-        }
-        string userId = "manager-user";
+        string? userId = httpContext.User.FindFirst("sub")?.Value
+            ?? httpContext.User.FindFirst("userId")?.Value
+            ?? throw new InvalidOperationException("User ID not found in token");
         GetAllOrdersQuery query = new(userId, IsManager: true);
         Result<List<OrderDto>> result = await mediator.Send(query, cancellationToken);
         if (!result.IsSuccess)
@@ -159,17 +168,10 @@ public static class OrderEndpoints
     private static async Task<IResult> UpdateOrderStatusAsync(
         [FromRoute] Guid id,
         [FromBody] UpdateOrderStatusRequest request,
-        [FromHeader(Name = "role")] string? role,
+        HttpContext httpContext,
         [FromServices] ISender mediator,
         CancellationToken cancellationToken)
     {
-        if (role?.ToLower() != "manager")
-        {
-            return Results.Problem(
-                statusCode: StatusCodes.Status403Forbidden,
-                title: "Access denied",
-                detail: "This endpoint requires manager role");
-        }
         UpdateOrderStatusCommand command = new(id, request.NewStatus);
         Result result = await mediator.Send(command, cancellationToken);
         if (!result.IsSuccess)

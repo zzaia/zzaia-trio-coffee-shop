@@ -27,12 +27,28 @@ builder.Services.AddSwaggerGen(options =>
             Name = "CoffeeShop Team"
         }
     });
-    options.AddSecurityDefinition("Role", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
-        Name = "role",
-        Type = SecuritySchemeType.ApiKey,
-        Description = "User role (customer or manager)"
+        Description = "Please enter a valid JWT token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 });
 
@@ -52,6 +68,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseExceptionHandlingMiddleware();
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapOrderEndpoints();
 app.MapUserEventSubscriptions();
