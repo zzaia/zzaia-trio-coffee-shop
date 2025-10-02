@@ -18,11 +18,11 @@ public static class OrderInjection
     /// <returns>The distributed application builder for chaining</returns>
     public static IDistributedApplicationBuilder AddOrderApplication(
         this IDistributedApplicationBuilder builder,
+        string namespaceName,
         IResourceBuilder<PostgresServerResource> sqlServer,
         IResourceBuilder<RedisResource> redis,
         IResourceBuilder<KafkaServerResource> kafka)
     {
-        string namespaceName = "coffee-shop";
         string appName = $"{namespaceName}-order";
         string resourcesPath = @"Applications\Order\Dapr";
         FileHelper.ReplaceVariablesInYamlFiles([resourcesPath], new Dictionary<string, string>
@@ -39,7 +39,7 @@ public static class OrderInjection
                    AppId = appName,
                    DaprHttpPort = 3502,
                    DaprGrpcPort = 50002,
-                   MetricsPort = 9093,
+                   MetricsPort = 9094,
                    ResourcesPaths = [fullDir],
                })
                .WithReference(dbOrder)

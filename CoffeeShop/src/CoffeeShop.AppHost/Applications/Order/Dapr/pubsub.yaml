@@ -1,11 +1,12 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: pubsub
+  name: order-pubsub
   namespace: __NAMESPACE__
 spec:
   type: pubsub.kafka
   version: v1
+  initTimeout: 30s
   metadata:
   - name: brokers
     value: localhost:9092

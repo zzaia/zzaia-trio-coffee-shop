@@ -28,14 +28,18 @@ IResourceBuilder<PostgresServerResource> sqlServer = builder
 
 // Redis 7 for Caching
 IResourceBuilder<RedisResource> redis = builder
-    .AddRedis("redis-coffee-shop", port: 6379)
+    .AddRedis("redis-coffee-shop")
     .WithImage("redis", "7-alpine")
+    .WithEndpoint("tcp", endpoint => endpoint.Port = 6379, createIfNotExists: true)
     .WithLifetime(ContainerLifetime.Persistent)
     .WithVolume("zzaia-coffee-shop-redis-data", "/data");
 
 // Kafka for Event Streaming
+// Note: Using host port 9092 for Dapr sidecar connectivity
 IResourceBuilder<KafkaServerResource> kafka = builder
     .AddKafka("kafka-coffee-shop", port: 9092)
+    .WithKafkaUI()
+    .WithEndpoint("tcp", endpoint => endpoint.Port = 9092, createIfNotExists: true)
     .WithLifetime(ContainerLifetime.Persistent)
     .WithVolume("zzaia-coffee-shop-kafka-data", "/var/lib/kafka/data");
 
@@ -51,8 +55,9 @@ if (builder.Environment.IsDevelopment())
         .WithLifetime(ContainerLifetime.Persistent);
 }
 
+string namespaceName = "coffee-shop";
 // builder.AddIdentityApplication(sqlServer, redis, kafka);
-builder.AddOrderApplication(sqlServer, redis, kafka);
+builder.AddOrderApplication(namespaceName, sqlServer, redis, kafka);
 // builder.AddBFFApplication(redis, kafka);
 // builder.AddWasmApplication();
 // builder.AddLLMApplication();
