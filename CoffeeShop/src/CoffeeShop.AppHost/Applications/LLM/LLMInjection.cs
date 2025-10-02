@@ -32,9 +32,9 @@ public static class LLMInjection
                .WithDaprSidecar(new DaprSidecarOptions
                {
                    AppId = appName,
-                   DaprHttpPort = 3502,
-                   DaprGrpcPort = 50003,
-                   MetricsPort = 9093,
+                   DaprHttpPort = 3504,
+                   DaprGrpcPort = 50004,
+                   MetricsPort = 9094,
                    ResourcesPaths = [fullDir],
                });
 

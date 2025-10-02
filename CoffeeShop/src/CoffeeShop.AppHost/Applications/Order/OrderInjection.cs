@@ -18,7 +18,7 @@ public static class OrderInjection
     /// <returns>The distributed application builder for chaining</returns>
     public static IDistributedApplicationBuilder AddOrderApplication(
         this IDistributedApplicationBuilder builder,
-        IResourceBuilder<PostgresDatabaseResource> database,
+        IResourceBuilder<PostgresServerResource> sqlServer,
         IResourceBuilder<RedisResource> redis,
         IResourceBuilder<KafkaServerResource> kafka)
     {
@@ -30,21 +30,22 @@ public static class OrderInjection
             ["__NAMESPACE__"] = namespaceName,
             ["__DAPR_APP_ID__"] = appName,
         });
-        string fullDir = FileHelper.CombineCrossPlatformPath(AppContext.BaseDirectory, resourcesPath);
 
+        string fullDir = FileHelper.CombineCrossPlatformPath(AppContext.BaseDirectory, resourcesPath);
+        IResourceBuilder<PostgresDatabaseResource> dbOrder = sqlServer.AddDatabase("db-order");
         builder.AddProject<Projects.CoffeeShop_Order>(appName)
                .WithDaprSidecar(new DaprSidecarOptions
                {
                    AppId = appName,
-                   DaprHttpPort = 3500,
-                   DaprGrpcPort = 50001,
-                   MetricsPort = 9091,
+                   DaprHttpPort = 3502,
+                   DaprGrpcPort = 50002,
+                   MetricsPort = 9093,
                    ResourcesPaths = [fullDir],
                })
-               .WithReference(database)
+               .WithReference(dbOrder)
                .WithReference(redis)
                .WithReference(kafka)
-               .WaitFor(database)
+               .WaitFor(dbOrder)
                .WaitFor(redis)
                .WaitFor(kafka);
 

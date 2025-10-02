@@ -29,4 +29,16 @@
     <ProjectReference Include="..\CoffeeShop.Identity\CoffeeShop.Identity.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Applications\Order\Dapr\**\*.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -34,9 +34,9 @@ public static class BFFInjection
                .WithDaprSidecar(new DaprSidecarOptions
                {
                    AppId = appName,
-                   DaprHttpPort = 3501,
-                   DaprGrpcPort = 50002,
-                   MetricsPort = 9092,
+                   DaprHttpPort = 3503,
+                   DaprGrpcPort = 50003,
+                   MetricsPort = 9093,
                    ResourcesPaths = [fullDir],
                })
                .WithReference(redis)

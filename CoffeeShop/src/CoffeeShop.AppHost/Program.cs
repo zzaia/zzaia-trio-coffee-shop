@@ -20,14 +20,11 @@ IResourceBuilder<ParameterResource> dbPassword = builder.AddParameter("DatabaseP
 if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(dbPassword.Resource.Value))
     throw new InvalidOperationException("A password for the PostgreSQL container is not configured.");
 
-IResourceBuilder<PostgresServerResource> postgres = builder
-    .AddPostgres("postgres-coffee-shop", dbPassword, port: 5432)
+IResourceBuilder<PostgresServerResource> sqlServer = builder
+    .AddPostgres("postgres-coffee-shop", dbPassword)
     .WithImage("postgres", "15-alpine")
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithVolume("zzaia-coffee-shop-postgres-data", "/var/lib/postgresql/data")
-    .WithEnvironment("POSTGRES_DB", "coffeeshop");
-
-IResourceBuilder<PostgresDatabaseResource> database = postgres.AddDatabase("CoffeeShopDb");
+    .WithVolume("zzaia-coffee-shop-postgres-data", "/var/lib/postgresql/data");
 
 // Redis 7 for Caching
 IResourceBuilder<RedisResource> redis = builder
@@ -47,18 +44,17 @@ IResourceBuilder<ContainerResource>? vault = null;
 if (builder.Environment.IsDevelopment())
 {
     vault = builder.AddContainer("vault-coffee-shop", "hashicorp/vault", "1.15")
-        .WithHttpEndpoint(port: 8200, targetPort: 8200, name: "http")
+        .WithHttpEndpoint(targetPort: 8200, name: "http")
         .WithEnvironment("VAULT_DEV_ROOT_TOKEN_ID", "dev-token")
         .WithEnvironment("VAULT_DEV_LISTEN_ADDRESS", "0.0.0.0:8200")
         .WithArgs("server", "-dev")
         .WithLifetime(ContainerLifetime.Persistent);
 }
 
-// Application Services
-builder.AddIdentityApplication(database, redis, kafka);
-builder.AddOrderApplication(database, redis, kafka);
-builder.AddBFFApplication(redis, kafka);
-builder.AddWasmApplication();
-builder.AddLLMApplication();
+// builder.AddIdentityApplication(sqlServer, redis, kafka);
+builder.AddOrderApplication(sqlServer, redis, kafka);
+// builder.AddBFFApplication(redis, kafka);
+// builder.AddWasmApplication();
+// builder.AddLLMApplication();
 
 builder.Build().Run();

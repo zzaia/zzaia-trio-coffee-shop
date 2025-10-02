@@ -12,13 +12,13 @@ public static class IdentityInjection
     /// Adds the Identity service with Dapr sidecar, PostgreSQL database, Redis cache, and Kafka messaging
     /// </summary>
     /// <param name="builder">The distributed application builder</param>
-    /// <param name="database">PostgreSQL database resource</param>
+    /// <param name="sqlServer">PostgreSQL database resource</param>
     /// <param name="redis">Redis cache resource</param>
     /// <param name="kafka">Kafka messaging resource</param>
     /// <returns>The distributed application builder for chaining</returns>
     public static IDistributedApplicationBuilder AddIdentityApplication(
         this IDistributedApplicationBuilder builder,
-        IResourceBuilder<PostgresDatabaseResource> database,
+        IResourceBuilder<PostgresServerResource> sqlServer,
         IResourceBuilder<RedisResource> redis,
         IResourceBuilder<KafkaServerResource> kafka)
     {
@@ -31,20 +31,20 @@ public static class IdentityInjection
             ["__DAPR_APP_ID__"] = appName,
         });
         string fullDir = FileHelper.CombineCrossPlatformPath(AppContext.BaseDirectory, resourcesPath);
-
+        IResourceBuilder<PostgresDatabaseResource> dbIdentity = sqlServer.AddDatabase("db-identity");
         builder.AddProject<Projects.CoffeeShop_Identity>(appName)
                .WithDaprSidecar(new DaprSidecarOptions
                {
                    AppId = appName,
-                   DaprHttpPort = 3502,
-                   DaprGrpcPort = 50003,
-                   MetricsPort = 9093,
+                   DaprHttpPort = 3501,
+                   DaprGrpcPort = 50001,
+                   MetricsPort = 9091,
                    ResourcesPaths = [fullDir],
                })
-               .WithReference(database)
+               .WithReference(dbIdentity)
                .WithReference(redis)
                .WithReference(kafka)
-               .WaitFor(database)
+               .WaitFor(dbIdentity)
                .WaitFor(redis)
                .WaitFor(kafka);
 
