@@ -2,7 +2,9 @@ namespace Zzaia.CoffeeShop.Order.Application;
 
 using System.Reflection;
 using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Zzaia.CoffeeShop.Order.Application.Common.Behaviors;
 
 /// <summary>
 /// Application layer dependency injection configuration.
@@ -18,6 +20,8 @@ public static class DependencyInjection
     {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         return services;
     }
 }
