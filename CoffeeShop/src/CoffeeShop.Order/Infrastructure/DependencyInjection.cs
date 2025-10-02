@@ -48,6 +48,8 @@ public static class DependencyInjection
         DaprClient daprClient = daprBuilder.Build();
         services.AddSingleton(daprClient);
         services.AddScoped<IIdentityServiceClient, IdentityServiceClient>();
+        services.AddScoped<IEventPublisher, EventPublisher>();
+        services.AddScoped<IUserCacheService, UserCacheService>();
         return services;
     }
 }

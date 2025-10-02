@@ -11,19 +11,19 @@ public sealed class User
     public required string UserId { get; init; }
 
     /// <summary>
-    /// Gets the user email.
+    /// Gets or sets the user email.
     /// </summary>
-    public required string Email { get; init; }
+    public required string Email { get; set; }
 
     /// <summary>
-    /// Gets the user full name.
+    /// Gets or sets the user full name.
     /// </summary>
-    public required string FullName { get; init; }
+    public required string FullName { get; set; }
 
     /// <summary>
-    /// Gets the user role.
+    /// Gets or sets the user role.
     /// </summary>
-    public required string Role { get; init; }
+    public required string Role { get; set; }
 
     /// <summary>
     /// Gets the creation timestamp.

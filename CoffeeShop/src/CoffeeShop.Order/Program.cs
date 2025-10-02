@@ -2,6 +2,7 @@ using Microsoft.Extensions.Hosting;
 using Zzaia.CoffeeShop.Order.Application;
 using Zzaia.CoffeeShop.Order.Infrastructure;
 using Zzaia.CoffeeShop.Order.Infrastructure.Persistence;
+using Zzaia.CoffeeShop.Order.Presentation.Endpoints;
 using Zzaia.CoffeeShop.ServiceDefaults.Persistence;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -34,6 +35,8 @@ app.MapGet("/orders", () => new[]
     new Order(3, "Latte", 4.75m, DateTimeOffset.UtcNow.AddMinutes(-10))
 })
 .WithName("GetOrders");
+
+app.MapUserEventSubscriptions();
 
 app.Run();
 

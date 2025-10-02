@@ -61,14 +61,14 @@ Sequential implementation for Order service with payment integration and Kafka e
 
 ---
 
-## Phase 6: Event Publishing (2-3 days)
+## Phase 6: Event Publishing (2-3 days) ✅
 
-- [ ] Configure Dapr pub/sub component for Kafka
-- [ ] Implement `EventPublisher.cs` using Dapr SDK
-- [ ] Publish `order.created` and `order.status.changed` events
-- [ ] Subscribe to `user.created`, `user.updated`, `user.deleted` from Identity
-- [ ] Update local user cache from events
-- [ ] Test event publishing and subscription
+- [x] Configure Dapr pub/sub component for Kafka
+- [x] Implement `EventPublisher.cs` using Dapr SDK
+- [x] Publish `order.created` and `order.status.changed` events
+- [x] Subscribe to `user.created`, `user.updated`, `user.deleted` from Identity
+- [x] Update local user cache from events
+- [x] Test event publishing and subscription
 
 ---
 
