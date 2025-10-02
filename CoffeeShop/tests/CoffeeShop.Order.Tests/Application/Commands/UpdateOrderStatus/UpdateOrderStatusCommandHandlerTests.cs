@@ -16,6 +16,7 @@ using OrderEntity = Zzaia.CoffeeShop.Order.Domain.Entities.Order;
 public sealed class UpdateOrderStatusCommandHandlerTests
 {
     private readonly Mock<IOrderRepository> orderRepositoryMock;
+    private readonly Mock<INotificationService> notificationServiceMock;
     private readonly Mock<IUnitOfWork> unitOfWorkMock;
     private readonly Mock<ILogger<UpdateOrderStatusCommandHandler>> loggerMock;
     private readonly UpdateOrderStatusCommandHandler handler;
@@ -23,10 +24,12 @@ public sealed class UpdateOrderStatusCommandHandlerTests
     public UpdateOrderStatusCommandHandlerTests()
     {
         orderRepositoryMock = new Mock<IOrderRepository>();
+        notificationServiceMock = new Mock<INotificationService>();
         unitOfWorkMock = new Mock<IUnitOfWork>();
         loggerMock = new Mock<ILogger<UpdateOrderStatusCommandHandler>>();
         handler = new UpdateOrderStatusCommandHandler(
             orderRepositoryMock.Object,
+            notificationServiceMock.Object,
             unitOfWorkMock.Object,
             loggerMock.Object);
     }
@@ -48,12 +51,26 @@ public sealed class UpdateOrderStatusCommandHandlerTests
         orderRepositoryMock
             .Setup(x => x.GetByIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(order);
+        notificationServiceMock
+            .Setup(x => x.SendOrderStatusNotificationAsync(
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         unitOfWorkMock
             .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
         Result result = await handler.Handle(command, CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
         order.Status.Should().Be(OrderStatus.Preparation);
+        notificationServiceMock.Verify(
+            x => x.SendOrderStatusNotificationAsync(
+                order.UserId,
+                order.OrderId,
+                OrderStatus.Preparation.ToString(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
         orderRepositoryMock.Verify(
             x => x.Update(It.IsAny<OrderEntity>()),
             Times.Once);
@@ -80,12 +97,26 @@ public sealed class UpdateOrderStatusCommandHandlerTests
         orderRepositoryMock
             .Setup(x => x.GetByIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(order);
+        notificationServiceMock
+            .Setup(x => x.SendOrderStatusNotificationAsync(
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         unitOfWorkMock
             .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
         Result result = await handler.Handle(command, CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
         order.Status.Should().Be(OrderStatus.Ready);
+        notificationServiceMock.Verify(
+            x => x.SendOrderStatusNotificationAsync(
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                OrderStatus.Ready.ToString(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
         orderRepositoryMock.Verify(
             x => x.Update(It.IsAny<OrderEntity>()),
             Times.Once);
@@ -113,12 +144,26 @@ public sealed class UpdateOrderStatusCommandHandlerTests
         orderRepositoryMock
             .Setup(x => x.GetByIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(order);
+        notificationServiceMock
+            .Setup(x => x.SendOrderStatusNotificationAsync(
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         unitOfWorkMock
             .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
         Result result = await handler.Handle(command, CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
         order.Status.Should().Be(OrderStatus.Delivered);
+        notificationServiceMock.Verify(
+            x => x.SendOrderStatusNotificationAsync(
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                OrderStatus.Delivered.ToString(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
         orderRepositoryMock.Verify(
             x => x.Update(It.IsAny<OrderEntity>()),
             Times.Once);
@@ -207,6 +252,13 @@ public sealed class UpdateOrderStatusCommandHandlerTests
         orderRepositoryMock
             .Setup(x => x.GetByIdAsync(orderId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(order);
+        notificationServiceMock
+            .Setup(x => x.SendOrderStatusNotificationAsync(
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         unitOfWorkMock
             .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
@@ -237,6 +289,45 @@ public sealed class UpdateOrderStatusCommandHandlerTests
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((o, t) => o.ToString()!.Contains("Error updating order")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldLogWarning_WhenNotificationFails()
+    {
+        Guid orderId = Guid.NewGuid();
+        OrderEntity order = OrderEntity.Create("user123");
+        order.AddItem(
+            ProductSnapshot.Create(
+                Guid.NewGuid(),
+                "Espresso",
+                "Strong coffee",
+                Money.Create(10.00m),
+                null),
+            Quantity.Create(1));
+        UpdateOrderStatusCommand command = new(orderId, OrderStatus.Preparation);
+        orderRepositoryMock
+            .Setup(x => x.GetByIdAsync(orderId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(order);
+        notificationServiceMock
+            .Setup(x => x.SendOrderStatusNotificationAsync(
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        unitOfWorkMock
+            .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+        Result result = await handler.Handle(command, CancellationToken.None);
+        result.IsSuccess.Should().BeTrue();
+        loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, t) => o.ToString()!.Contains("Failed to send notification")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);

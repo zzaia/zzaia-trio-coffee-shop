@@ -1,3 +1,4 @@
+using MediatR;
 using Zzaia.CoffeeShop.Order.Domain.Common;
 using Zzaia.CoffeeShop.Order.Domain.Enums;
 
@@ -10,4 +11,4 @@ public sealed record OrderStatusChangedEvent(
     Guid OrderId,
     OrderStatus PreviousStatus,
     OrderStatus NewStatus,
-    DateTimeOffset ChangedAt) : IDomainEvent;
+    DateTimeOffset ChangedAt) : IDomainEvent, INotification;

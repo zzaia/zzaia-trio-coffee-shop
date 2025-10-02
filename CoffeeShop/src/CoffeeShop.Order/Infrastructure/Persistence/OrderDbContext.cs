@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Zzaia.CoffeeShop.Order.Domain.Common;
 using Zzaia.CoffeeShop.Order.Domain.Entities;
@@ -7,7 +8,9 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence;
 /// <summary>
 /// Database context for Order service.
 /// </summary>
-public sealed class OrderDbContext(DbContextOptions<OrderDbContext> options) : DbContext(options)
+public sealed class OrderDbContext(
+    DbContextOptions<OrderDbContext> options,
+    IPublisher publisher) : DbContext(options)
 {
     /// <summary>
     /// Gets or sets the Orders DbSet.
@@ -87,7 +90,7 @@ public sealed class OrderDbContext(DbContextOptions<OrderDbContext> options) : D
         entities.ForEach(e => e.ClearDomainEvents());
         foreach (IDomainEvent domainEvent in domainEvents)
         {
-            await Task.CompletedTask;
+            await publisher.Publish(domainEvent, cancellationToken);
         }
     }
 }

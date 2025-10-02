@@ -1,5 +1,7 @@
 using FluentAssertions;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Zzaia.CoffeeShop.Order.Infrastructure.Persistence;
 using OrderDomain = Zzaia.CoffeeShop.Order.Domain;
 
@@ -19,7 +21,8 @@ public sealed class OrderDbContextTests
         DbContextOptions<OrderDbContext> options = new DbContextOptionsBuilder<OrderDbContext>()
             .UseInMemoryDatabase(databaseName: "TestDatabase")
             .Options;
-        using OrderDbContext context = new(options);
+        Mock<IPublisher> publisherMock = new();
+        using OrderDbContext context = new(options, publisherMock.Object);
         context.Should().NotBeNull();
         context.Orders.Should().NotBeNull();
         context.Products.Should().NotBeNull();
@@ -36,7 +39,8 @@ public sealed class OrderDbContextTests
         DbContextOptions<OrderDbContext> options = new DbContextOptionsBuilder<OrderDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
-        using OrderDbContext context = new(options);
+        Mock<IPublisher> publisherMock = new();
+        using OrderDbContext context = new(options, publisherMock.Object);
         OrderDomain.Entities.Product product = OrderDomain.Entities.Product.Create(
             "Espresso",
             "Rich and bold espresso shot",
@@ -61,7 +65,8 @@ public sealed class OrderDbContextTests
         DbContextOptions<OrderDbContext> options = new DbContextOptionsBuilder<OrderDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
-        using OrderDbContext context = new(options);
+        Mock<IPublisher> publisherMock = new();
+        using OrderDbContext context = new(options, publisherMock.Object);
         OrderDomain.Entities.Product product = OrderDomain.Entities.Product.Create(
             "Cappuccino",
             "Espresso with steamed milk and foam",
@@ -96,7 +101,8 @@ public sealed class OrderDbContextTests
         DbContextOptions<OrderDbContext> options = new DbContextOptionsBuilder<OrderDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
-        using OrderDbContext context = new(options);
+        Mock<IPublisher> publisherMock = new();
+        using OrderDbContext context = new(options, publisherMock.Object);
         OrderDomain.Entities.Order order = OrderDomain.Entities.Order.Create("user123");
         OrderDomain.ValueObjects.ProductSnapshot snapshot = OrderDomain.ValueObjects.ProductSnapshot.Create(
             Guid.NewGuid(),
@@ -122,7 +128,8 @@ public sealed class OrderDbContextTests
         DbContextOptions<OrderDbContext> options = new DbContextOptionsBuilder<OrderDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
-        using OrderDbContext context = new(options);
+        Mock<IPublisher> publisherMock = new();
+        using OrderDbContext context = new(options, publisherMock.Object);
         OrderDomain.Entities.User user = OrderDomain.Entities.User.Create(
             "user123",
             "user@example.com",

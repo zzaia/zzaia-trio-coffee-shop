@@ -1,3 +1,4 @@
+using MediatR;
 using Zzaia.CoffeeShop.Order.Domain.Common;
 using Zzaia.CoffeeShop.Order.Domain.ValueObjects;
 
@@ -10,4 +11,4 @@ public sealed record OrderCreatedEvent(
     Guid OrderId,
     string UserId,
     Money TotalAmount,
-    DateTimeOffset CreatedAt) : IDomainEvent;
+    DateTimeOffset CreatedAt) : IDomainEvent, INotification;

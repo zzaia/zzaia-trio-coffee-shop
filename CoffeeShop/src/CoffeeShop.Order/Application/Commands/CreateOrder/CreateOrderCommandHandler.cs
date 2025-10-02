@@ -13,6 +13,7 @@ using Zzaia.CoffeeShop.Order.Domain.ValueObjects;
 public class CreateOrderCommandHandler(
     IOrderRepository orderRepository,
     IProductRepository productRepository,
+    IPaymentService paymentService,
     IUnitOfWork unitOfWork,
     ILogger<CreateOrderCommandHandler> logger) : IRequestHandler<CreateOrderCommand, Result<Guid>>
 {
@@ -26,7 +27,7 @@ public class CreateOrderCommandHandler(
     {
         try
         {
-            Domain.Entities.Order order = Domain.Entities.Order.Create(request.UserId);
+            Order order = Order.Create(request.UserId);
             foreach (OrderItemRequest itemRequest in request.Items)
             {
                 Product? product = await productRepository.GetByIdAsync(itemRequest.ProductId, cancellationToken);
@@ -61,11 +62,51 @@ public class CreateOrderCommandHandler(
                 Quantity quantity = Quantity.Create(itemRequest.Quantity);
                 order.AddItem(snapshot, quantity);
             }
-            await orderRepository.AddAsync(order, cancellationToken);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-            logger.LogInformation("Order {OrderId} created successfully for user {UserId}",
-                order.OrderId, order.UserId);
-            return Result<Guid>.Success(order.OrderId);
+
+            PaymentRequest paymentRequest = new(
+                order.OrderId.ToString(),
+                order.TotalAmount.Amount,
+                order.TotalAmount.Currency,
+                order.UserId);
+            PaymentResult paymentResult = await paymentService.ProcessPaymentAsync(
+                paymentRequest,
+                cancellationToken);
+            if (!paymentResult.Success)
+            {
+                logger.LogWarning(
+                    "Payment failed for order {OrderId}: {Error}",
+                    order.OrderId,
+                    paymentResult.ErrorMessage);
+                return Result<Guid>.Failure(
+                    paymentResult.ErrorMessage ?? "Payment processing failed");
+            }
+
+            order.SetPaymentTransactionId(paymentResult.TransactionId!);
+
+            try
+            {
+                await orderRepository.AddAsync(order, cancellationToken);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+                logger.LogInformation(
+                    "Order {OrderId} created successfully for user {UserId} with transaction {TransactionId}",
+                    order.OrderId,
+                    order.UserId,
+                    paymentResult.TransactionId);
+                return Result<Guid>.Success(order.OrderId);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Order creation failed after payment, initiating refund for transaction {TransactionId}",
+                    paymentResult.TransactionId);
+                await paymentService.RefundPaymentAsync(
+                    paymentResult.TransactionId!,
+                    order.TotalAmount.Amount,
+                    order.TotalAmount.Currency,
+                    cancellationToken);
+                throw;
+            }
         }
         catch (Exception ex)
         {

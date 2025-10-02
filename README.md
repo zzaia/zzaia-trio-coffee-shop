@@ -9,6 +9,10 @@
 
 ---
 
+## Problem Statement 
+
+Client demands a coffee shop system capable of managing orders, closing the gap between the manager that execute the order and the customer that places the order.
+
 ## 🎯 Project Overview
 
 Production-ready coffee shop order management system built with modern microservices architecture, demonstrating enterprise-level design patterns, cloud-native deployment, and event-driven architecture.
@@ -175,6 +179,11 @@ kubectl apply -f manifests/
 
 ### Planned Features
 - **Blazor WebAssembly Frontend**: Rich SPA with real-time order tracking, GraphQL subscriptions
+- **Identity Service**: Identity application responsible for all authentication and authorization procedures 
+- **Bff Ingress**: Back for front-end application exposing a GraphQL API 
+- **Deployment Pipelines**: Deployment pipelines for staging and production environments 
+
+### Suggested Features 
 - **Centralized Logging System**: Production-ready centralized application logging system and analytics
 - **Payment Domain Service**: Implementation of a payment system that can handle blockchain payments
 - **Infra Management**: Services like Rancher, Grafana, and Prometheus

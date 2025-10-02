@@ -10,6 +10,7 @@ using Zzaia.CoffeeShop.Order.Application.Common.Models;
 /// </summary>
 public class UpdateOrderStatusCommandHandler(
     IOrderRepository orderRepository,
+    INotificationService notificationService,
     IUnitOfWork unitOfWork,
     ILogger<UpdateOrderStatusCommandHandler> logger) : IRequestHandler<UpdateOrderStatusCommand, Result>
 {
@@ -38,7 +39,24 @@ public class UpdateOrderStatusCommandHandler(
             }
             orderRepository.Update(order);
             await unitOfWork.SaveChangesAsync(cancellationToken);
-            logger.LogInformation("Order {OrderId} status updated to {NewStatus}", order.OrderId, request.NewStatus);
+
+            bool notificationSent = await notificationService.SendOrderStatusNotificationAsync(
+                order.UserId,
+                order.OrderId,
+                request.NewStatus.ToString(),
+                cancellationToken);
+            if (!notificationSent)
+            {
+                logger.LogWarning(
+                    "Failed to send notification for order {OrderId} status change to {Status}",
+                    order.OrderId,
+                    request.NewStatus);
+            }
+
+            logger.LogInformation(
+                "Order {OrderId} status updated to {NewStatus}",
+                order.OrderId,
+                request.NewStatus);
             return Result.Success();
         }
         catch (Exception ex)

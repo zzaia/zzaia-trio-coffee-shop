@@ -85,7 +85,7 @@ public sealed class PaymentService(
         }
         finally
         {
-            await ReleaseLockAsync(distributedCache, lockKey, cancellationToken, logger);
+            await ReleaseLockAsync(distributedCache, lockKey, logger, cancellationToken);
         }
     }
 
@@ -113,11 +113,6 @@ public sealed class PaymentService(
             if (response.IsSuccessStatusCode)
             {
                 string responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-
-                Console.WriteLine("=== Payment Refund Response ===");
-                Console.WriteLine(responseContent);
-                Console.WriteLine("===============================");
-
                 PaymentResponse? refundResponse = await response.Content
                     .ReadFromJsonAsync<PaymentResponse>(cancellationToken);
                 logger.LogInformation(
@@ -211,8 +206,8 @@ public sealed class PaymentService(
     private static async Task ReleaseLockAsync(
         IDistributedCache cache,
         string key,
-        CancellationToken cancellationToken,
-        ILogger<PaymentService> logger)
+        ILogger<PaymentService> logger,
+        CancellationToken cancellationToken)
     {
         try
         {
