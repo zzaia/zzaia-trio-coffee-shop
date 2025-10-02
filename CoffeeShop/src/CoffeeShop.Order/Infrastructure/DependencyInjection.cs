@@ -1,8 +1,10 @@
+using Dapr.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Zzaia.CoffeeShop.Order.Application.Common.Interfaces;
 using Zzaia.CoffeeShop.Order.Infrastructure.Persistence;
 using Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Repositories;
+using Zzaia.CoffeeShop.Order.Infrastructure.Services;
 
 namespace Zzaia.CoffeeShop.Order.Infrastructure;
 
@@ -24,6 +26,28 @@ public static class DependencyInjection
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddHttpClient<IPaymentService, PaymentService>(client =>
+        {
+            string baseUrl = configuration["Services:PaymentService:BaseUrl"]
+                ?? "http://localhost:5100";
+            client.BaseAddress = new Uri(baseUrl);
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+        services.AddHttpClient<INotificationService, ExternalNotificationService>(client =>
+        {
+            string baseUrl = configuration["Services:NotificationService:BaseUrl"]
+                ?? "http://localhost:5200";
+            client.BaseAddress = new Uri(baseUrl);
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = configuration.GetConnectionString("Redis");
+        });
+        DaprClientBuilder daprBuilder = new DaprClientBuilder();
+        DaprClient daprClient = daprBuilder.Build();
+        services.AddSingleton(daprClient);
+        services.AddScoped<IIdentityServiceClient, IdentityServiceClient>();
         return services;
     }
 }

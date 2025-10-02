@@ -49,15 +49,15 @@ Sequential implementation for Order service with payment integration and Kafka e
 
 ---
 
-## Phase 5: External Services (3-4 days)
+## Phase 5: External Services (3-4 days) ✅
 
-- [ ] Implement `PaymentService.cs` with Polly (circuit breaker: 5/30s, retry: 3x exp backoff, timeout: 30s)
-- [ ] Implement Redis distributed lock for payment (order_id key, 60s TTL)
-- [ ] Implement payment refund compensation logic (negative value, original transaction_id)
-- [ ] Implement `ExternalNotificationService.cs` with Polly
-- [ ] Create `IdentityServiceClient.cs` using Dapr service invocation
-- [ ] Configure client credentials authentication
-- [ ] Test external service integration with mocks
+- [x] Implement `PaymentService.cs` with Polly (circuit breaker: 5/30s, retry: 3x exp backoff, timeout: 30s)
+- [x] Implement Redis distributed lock for payment (order_id key, 60s TTL)
+- [x] Implement payment refund compensation logic (negative value, original transaction_id)
+- [x] Implement `ExternalNotificationService.cs` with Polly
+- [x] Create `IdentityServiceClient.cs` using Dapr service invocation
+- [x] Configure client credentials authentication
+- [x] Test external service integration with mocks, can call real external service
 
 ---
 
