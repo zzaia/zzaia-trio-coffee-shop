@@ -49,16 +49,17 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
                 .HasMaxLength(3)
                 .IsRequired();
         });
-        builder.HasMany<ProductVariation>()
+        builder.HasMany(p => p.Variations)
             .WithOne()
             .HasForeignKey(pv => pv.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(p => p.Variations)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.HasIndex(p => p.Category)
             .HasDatabaseName("idx_products_category");
         builder.HasIndex(p => p.IsAvailable)
             .HasDatabaseName("idx_products_is_available");
         builder.Ignore(p => p.ProductId);
-        builder.Ignore(p => p.Variations);
         builder.Ignore(p => p.DomainEvents);
     }
 }
