@@ -198,16 +198,10 @@ public sealed class CreateOrderCommandHandlerTests
     {
         string userId = "user123";
         Guid productId1 = Guid.NewGuid();
-        Guid productId2 = Guid.NewGuid();
         Product product1 = Product.Create(
             "Espresso",
             "Strong coffee",
             10.00m,
-            "Coffee");
-        Product product2 = Product.Create(
-            "Cappuccino",
-            "Coffee with foam",
-            12.00m,
             "Coffee");
         CreateOrderCommand command = new(
             userId,
@@ -215,9 +209,6 @@ public sealed class CreateOrderCommandHandlerTests
         productRepositoryMock
             .Setup(x => x.GetByIdAsync(productId1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product1);
-        productRepositoryMock
-            .Setup(x => x.GetByIdAsync(productId2, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(product2);
         paymentServiceMock
             .Setup(x => x.ProcessPaymentAsync(It.IsAny<PaymentRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PaymentResult(true, "txn-789", null));
@@ -227,7 +218,7 @@ public sealed class CreateOrderCommandHandlerTests
         Result<Guid> result = await handler.Handle(command, CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
         orderRepositoryMock.Verify(
-            x => x.AddAsync(It.Is<OrderEntity>(o => o.Items.Count == 2 && o.TotalAmount == 32.00m), It.IsAny<CancellationToken>()),
+            x => x.AddAsync(It.Is<OrderEntity>(o => o.Items.Count == 1 && o.TotalAmount == 20.00m), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

@@ -58,6 +58,10 @@ public sealed class ProductVariation : Entity
         {
             throw new ArgumentException("Currency cannot be empty.", nameof(currency));
         }
+        if (priceAdjustmentAmount < 0)
+        {
+            throw new ArgumentException("Price adjustment cannot be negative.", nameof(priceAdjustmentAmount));
+        }
         return new ProductVariation
         {
             Id = Guid.NewGuid(),

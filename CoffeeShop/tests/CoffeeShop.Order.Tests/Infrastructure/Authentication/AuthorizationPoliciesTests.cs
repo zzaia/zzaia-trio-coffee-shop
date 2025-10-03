@@ -43,17 +43,15 @@ public class AuthorizationPoliciesTests
     // }
 
     [Fact]
-    public void CustomerPolicy_ShouldContainRoleHeaderRequirement()
+    public async Task CustomerPolicy_ShouldContainRoleHeaderRequirement()
     {
         ServiceCollection services = new();
         services.AddAuthorizationPolicies();
         ServiceProvider provider = services.BuildServiceProvider();
         IAuthorizationPolicyProvider policyProvider = provider
             .GetRequiredService<IAuthorizationPolicyProvider>();
-        AuthorizationPolicy? policy = policyProvider
-            .GetPolicyAsync(AuthorizationPolicies.CustomerPolicy)
-            .GetAwaiter()
-            .GetResult();
+        AuthorizationPolicy? policy = await policyProvider
+            .GetPolicyAsync(AuthorizationPolicies.CustomerPolicy);
         policy.Should().NotBeNull();
         RoleHeaderRequirement? roleRequirement = policy!.Requirements
             .OfType<RoleHeaderRequirement>()
@@ -63,17 +61,15 @@ public class AuthorizationPoliciesTests
     }
 
     [Fact]
-    public void ManagerPolicy_ShouldContainRoleHeaderRequirement()
+    public async Task ManagerPolicy_ShouldContainRoleHeaderRequirement()
     {
         ServiceCollection services = new();
         services.AddAuthorizationPolicies();
         ServiceProvider provider = services.BuildServiceProvider();
         IAuthorizationPolicyProvider policyProvider = provider
             .GetRequiredService<IAuthorizationPolicyProvider>();
-        AuthorizationPolicy? policy = policyProvider
-            .GetPolicyAsync(AuthorizationPolicies.ManagerPolicy)
-            .GetAwaiter()
-            .GetResult();
+        AuthorizationPolicy? policy = await policyProvider
+            .GetPolicyAsync(AuthorizationPolicies.ManagerPolicy);
         policy.Should().NotBeNull();
         RoleHeaderRequirement? roleRequirement = policy!.Requirements
             .OfType<RoleHeaderRequirement>()

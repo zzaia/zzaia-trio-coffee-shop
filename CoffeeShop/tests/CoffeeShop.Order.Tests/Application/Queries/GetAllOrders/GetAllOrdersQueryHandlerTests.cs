@@ -49,8 +49,8 @@ public sealed class GetAllOrdersQueryHandlerTests
         Result<List<OrderDto>> result = await handler.Handle(query, CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().NotBeNull();
-        result.Value!.Should().HaveCount(2);
-        result.Value[0].UserId.Should().Be("user1");
+        result.Value.Should().HaveCount(2);
+        result.Value![0].UserId.Should().Be("user1");
         result.Value[1].UserId.Should().Be("user2");
     }
 
@@ -107,8 +107,8 @@ public sealed class GetAllOrdersQueryHandlerTests
         Result<List<OrderDto>> result = await handler.Handle(query, CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().NotBeNull();
-        result.Value!.Should().HaveCount(1);
-        result.Value[0].Items.Should().HaveCount(2);
+        result.Value.Should().HaveCount(1);
+        result.Value![0].Items.Should().HaveCount(2);
         result.Value[0].Items[0].ProductName.Should().Be("Espresso");
         result.Value[0].Items[1].ProductName.Should().Be("Cappuccino");
         result.Value[0].TotalAmount.Should().Be(32.00m);
