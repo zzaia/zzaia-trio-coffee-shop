@@ -7,6 +7,7 @@ using Zzaia.CoffeeShop.Order.Application.Commands.CreateOrder;
 using Zzaia.CoffeeShop.Order.Application.Common.Interfaces;
 using Zzaia.CoffeeShop.Order.Application.Common.Models;
 using Zzaia.CoffeeShop.Order.Domain.Entities;
+using Zzaia.CoffeeShop.Order.Presentation.Endpoints;
 using OrderEntity = Zzaia.CoffeeShop.Order.Domain.Entities.Order;
 
 /// <summary>
@@ -48,7 +49,7 @@ public sealed class CreateOrderCommandHandlerTests
             "Coffee");
         CreateOrderCommand command = new(
             userId,
-            [new OrderItemRequest(productId, null, 2)]);
+            new CreateOrderItemRequest(productId, 2, null));
         productRepositoryMock
             .Setup(x => x.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product);
@@ -79,7 +80,7 @@ public sealed class CreateOrderCommandHandlerTests
         Guid productId = Guid.NewGuid();
         CreateOrderCommand command = new(
             userId,
-            [new OrderItemRequest(productId, null, 2)]);
+            new CreateOrderItemRequest(productId, 2, null));
         productRepositoryMock
             .Setup(x => x.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Product?)null);
@@ -108,7 +109,7 @@ public sealed class CreateOrderCommandHandlerTests
         product.SetAvailability(false);
         CreateOrderCommand command = new(
             userId,
-            [new OrderItemRequest(productId, null, 2)]);
+            new CreateOrderItemRequest(productId, 2, null));
         productRepositoryMock
             .Setup(x => x.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product);
@@ -136,7 +137,7 @@ public sealed class CreateOrderCommandHandlerTests
             "Coffee");
         CreateOrderCommand command = new(
             userId,
-            [new OrderItemRequest(productId, variationId, 1)]);
+            new CreateOrderItemRequest(productId, 1, variationId));
         productRepositoryMock
             .Setup(x => x.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product);
@@ -172,7 +173,7 @@ public sealed class CreateOrderCommandHandlerTests
             3.00m);
         CreateOrderCommand command = new(
             userId,
-            [new OrderItemRequest(productId, variationId, 2)]);
+            new CreateOrderItemRequest(productId, 2, variationId));
         productRepositoryMock
             .Setup(x => x.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product);
@@ -210,10 +211,7 @@ public sealed class CreateOrderCommandHandlerTests
             "Coffee");
         CreateOrderCommand command = new(
             userId,
-            [
-                new OrderItemRequest(productId1, null, 2),
-                new OrderItemRequest(productId2, null, 1)
-            ]);
+            new CreateOrderItemRequest(productId1, 2, null));
         productRepositoryMock
             .Setup(x => x.GetByIdAsync(productId1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product1);
@@ -240,7 +238,7 @@ public sealed class CreateOrderCommandHandlerTests
         Guid productId = Guid.NewGuid();
         CreateOrderCommand command = new(
             userId,
-            [new OrderItemRequest(productId, null, 2)]);
+            new CreateOrderItemRequest(productId, 2, null));
         productRepositoryMock
             .Setup(x => x.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Database error"));
@@ -262,7 +260,7 @@ public sealed class CreateOrderCommandHandlerTests
             "Coffee");
         CreateOrderCommand command = new(
             userId,
-            [new OrderItemRequest(productId, null, 2)]);
+            new CreateOrderItemRequest(productId, 2, null));
         productRepositoryMock
             .Setup(x => x.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product);
@@ -291,7 +289,7 @@ public sealed class CreateOrderCommandHandlerTests
         Guid productId = Guid.NewGuid();
         CreateOrderCommand command = new(
             userId,
-            [new OrderItemRequest(productId, null, 2)]);
+            new CreateOrderItemRequest(productId, 2, null));
         productRepositoryMock
             .Setup(x => x.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Database error"));
@@ -319,7 +317,7 @@ public sealed class CreateOrderCommandHandlerTests
             "Coffee");
         CreateOrderCommand command = new(
             userId,
-            [new OrderItemRequest(productId, null, 2)]);
+            new CreateOrderItemRequest(productId, 2, null));
         productRepositoryMock
             .Setup(x => x.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product);
@@ -349,7 +347,7 @@ public sealed class CreateOrderCommandHandlerTests
             "Coffee");
         CreateOrderCommand command = new(
             userId,
-            [new OrderItemRequest(productId, null, 2)]);
+            new CreateOrderItemRequest(productId, 2, null));
         productRepositoryMock
             .Setup(x => x.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product);

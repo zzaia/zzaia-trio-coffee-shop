@@ -6,6 +6,7 @@ using Moq;
 using Zzaia.CoffeeShop.Order.Application.Common.Interfaces;
 using Zzaia.CoffeeShop.Order.Application.Common.Models;
 using Zzaia.CoffeeShop.Order.Application.Queries.GetAllOrders;
+using Zzaia.CoffeeShop.Order.Application.Queries.GetOrderById;
 using Zzaia.CoffeeShop.Order.Domain.ValueObjects;
 using OrderEntity = Zzaia.CoffeeShop.Order.Domain.Entities.Order;
 
