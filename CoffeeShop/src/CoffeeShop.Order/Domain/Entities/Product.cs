@@ -1,5 +1,4 @@
 using Zzaia.CoffeeShop.Order.Domain.Common;
-using Zzaia.CoffeeShop.Order.Domain.ValueObjects;
 
 namespace Zzaia.CoffeeShop.Order.Domain.Entities;
 
@@ -65,15 +64,17 @@ public sealed class Product : Entity
     /// </summary>
     /// <param name="name">The product name.</param>
     /// <param name="description">The product description.</param>
-    /// <param name="basePrice">The base price.</param>
+    /// <param name="basePriceAmount">The base price amount.</param>
     /// <param name="category">The product category.</param>
+    /// <param name="currency">The currency code.</param>
     /// <param name="imageUrl">The image URL.</param>
     /// <returns>A new Product instance.</returns>
     public static Product Create(
         string name,
         string description,
-        Money basePrice,
+        decimal basePriceAmount,
         string category,
+        string currency = "BRL",
         string? imageUrl = null)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -88,13 +89,21 @@ public sealed class Product : Entity
         {
             throw new ArgumentException("Category cannot be empty.", nameof(category));
         }
+        if (basePriceAmount < 0)
+        {
+            throw new ArgumentException("Base price cannot be negative.", nameof(basePriceAmount));
+        }
+        if (string.IsNullOrWhiteSpace(currency))
+        {
+            throw new ArgumentException("Currency cannot be empty.", nameof(currency));
+        }
         return new Product
         {
             Id = Guid.NewGuid(),
             Name = name,
             Description = description,
-            BasePriceAmount = basePrice.Amount,
-            Currency = basePrice.Currency,
+            BasePriceAmount = basePriceAmount,
+            Currency = currency,
             Category = category,
             ImageUrl = imageUrl
         };

@@ -1,5 +1,4 @@
 using Zzaia.CoffeeShop.Order.Domain.Common;
-using Zzaia.CoffeeShop.Order.Domain.ValueObjects;
 
 namespace Zzaia.CoffeeShop.Order.Domain.Entities;
 
@@ -42,9 +41,10 @@ public sealed class ProductVariation : Entity
     /// </summary>
     /// <param name="productId">The product identifier.</param>
     /// <param name="name">The variation name.</param>
-    /// <param name="priceAdjustment">The price adjustment.</param>
+    /// <param name="priceAdjustmentAmount">The price adjustment amount.</param>
+    /// <param name="currency">The currency code.</param>
     /// <returns>A new ProductVariation instance.</returns>
-    public static ProductVariation Create(Guid productId, string name, Money priceAdjustment)
+    public static ProductVariation Create(Guid productId, string name, decimal priceAdjustmentAmount, string currency = "BRL")
     {
         if (productId == Guid.Empty)
         {
@@ -54,13 +54,17 @@ public sealed class ProductVariation : Entity
         {
             throw new ArgumentException("Name cannot be empty.", nameof(name));
         }
+        if (string.IsNullOrWhiteSpace(currency))
+        {
+            throw new ArgumentException("Currency cannot be empty.", nameof(currency));
+        }
         return new ProductVariation
         {
             Id = Guid.NewGuid(),
             ProductId = productId,
             Name = name,
-            PriceAdjustmentAmount = priceAdjustment.Amount,
-            Currency = priceAdjustment.Currency
+            PriceAdjustmentAmount = priceAdjustmentAmount,
+            Currency = currency
         };
     }
 }

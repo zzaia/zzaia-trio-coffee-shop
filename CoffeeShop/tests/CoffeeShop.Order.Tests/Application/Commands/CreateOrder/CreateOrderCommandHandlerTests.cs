@@ -7,7 +7,6 @@ using Zzaia.CoffeeShop.Order.Application.Commands.CreateOrder;
 using Zzaia.CoffeeShop.Order.Application.Common.Interfaces;
 using Zzaia.CoffeeShop.Order.Application.Common.Models;
 using Zzaia.CoffeeShop.Order.Domain.Entities;
-using Zzaia.CoffeeShop.Order.Domain.ValueObjects;
 using OrderEntity = Zzaia.CoffeeShop.Order.Domain.Entities.Order;
 
 /// <summary>
@@ -45,7 +44,7 @@ public sealed class CreateOrderCommandHandlerTests
         Product product = Product.Create(
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m),
+            10.00m,
             "Coffee");
         CreateOrderCommand command = new(
             userId,
@@ -104,7 +103,7 @@ public sealed class CreateOrderCommandHandlerTests
         Product product = Product.Create(
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m),
+            10.00m,
             "Coffee");
         product.SetAvailability(false);
         CreateOrderCommand command = new(
@@ -133,7 +132,7 @@ public sealed class CreateOrderCommandHandlerTests
         Product product = Product.Create(
             "Latte",
             "Coffee with milk",
-            Money.Create(12.00m),
+            12.00m,
             "Coffee");
         CreateOrderCommand command = new(
             userId,
@@ -165,12 +164,12 @@ public sealed class CreateOrderCommandHandlerTests
         Product product = Product.Create(
             "Latte",
             "Coffee with milk",
-            Money.Create(12.00m),
+            12.00m,
             "Coffee");
         ProductVariation variation = ProductVariation.Create(
             productId,
             "Large",
-            Money.Create(3.00m));
+            3.00m);
         CreateOrderCommand command = new(
             userId,
             [new OrderItemRequest(productId, variationId, 2)]);
@@ -189,7 +188,7 @@ public sealed class CreateOrderCommandHandlerTests
         Result<Guid> result = await handler.Handle(command, CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
         orderRepositoryMock.Verify(
-            x => x.AddAsync(It.Is<OrderEntity>(o => o.TotalAmount.Amount == 30.00m), It.IsAny<CancellationToken>()),
+            x => x.AddAsync(It.Is<OrderEntity>(o => o.TotalAmount == 30.00m), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -202,12 +201,12 @@ public sealed class CreateOrderCommandHandlerTests
         Product product1 = Product.Create(
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m),
+            10.00m,
             "Coffee");
         Product product2 = Product.Create(
             "Cappuccino",
             "Coffee with foam",
-            Money.Create(12.00m),
+            12.00m,
             "Coffee");
         CreateOrderCommand command = new(
             userId,
@@ -230,7 +229,7 @@ public sealed class CreateOrderCommandHandlerTests
         Result<Guid> result = await handler.Handle(command, CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
         orderRepositoryMock.Verify(
-            x => x.AddAsync(It.Is<OrderEntity>(o => o.Items.Count == 2 && o.TotalAmount.Amount == 32.00m), It.IsAny<CancellationToken>()),
+            x => x.AddAsync(It.Is<OrderEntity>(o => o.Items.Count == 2 && o.TotalAmount == 32.00m), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -259,7 +258,7 @@ public sealed class CreateOrderCommandHandlerTests
         Product product = Product.Create(
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m),
+            10.00m,
             "Coffee");
         CreateOrderCommand command = new(
             userId,
@@ -316,7 +315,7 @@ public sealed class CreateOrderCommandHandlerTests
         Product product = Product.Create(
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m),
+            10.00m,
             "Coffee");
         CreateOrderCommand command = new(
             userId,
@@ -346,7 +345,7 @@ public sealed class CreateOrderCommandHandlerTests
         Product product = Product.Create(
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m),
+            10.00m,
             "Coffee");
         CreateOrderCommand command = new(
             userId,

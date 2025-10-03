@@ -6,7 +6,6 @@ using Moq;
 using Zzaia.CoffeeShop.Order.Application.Common.Interfaces;
 using Zzaia.CoffeeShop.Order.Application.Common.Models;
 using Zzaia.CoffeeShop.Order.Application.Queries.GetAllOrders;
-using Zzaia.CoffeeShop.Order.Application.Queries.GetOrderById;
 using Zzaia.CoffeeShop.Order.Domain.ValueObjects;
 using OrderEntity = Zzaia.CoffeeShop.Order.Domain.Entities.Order;
 
@@ -38,7 +37,7 @@ public sealed class GetAllOrdersQueryHandlerTests
             Guid.NewGuid(),
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m));
+            10.00m);
         order1.AddItem(product1, Quantity.Create(2));
         order2.AddItem(product1, Quantity.Create(1));
         List<OrderEntity> orders = [order1, order2];
@@ -91,12 +90,12 @@ public sealed class GetAllOrdersQueryHandlerTests
             Guid.NewGuid(),
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m));
+            10.00m);
         ProductSnapshot product2 = ProductSnapshot.Create(
             Guid.NewGuid(),
             "Cappuccino",
             "Coffee with foam",
-            Money.Create(12.00m));
+            12.00m);
         order.AddItem(product1, Quantity.Create(2));
         order.AddItem(product2, Quantity.Create(1));
         List<OrderEntity> orders = [order];

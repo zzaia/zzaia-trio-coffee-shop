@@ -37,7 +37,7 @@ public sealed class GetOrderByIdQueryHandlerTests
             Guid.NewGuid(),
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m));
+            10.00m);
         order.AddItem(productSnapshot, Quantity.Create(2));
         GetOrderByIdQuery query = new(orderId, userId);
         orderRepositoryMock
@@ -96,12 +96,12 @@ public sealed class GetOrderByIdQueryHandlerTests
             Guid.NewGuid(),
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m));
+            10.00m);
         ProductSnapshot product2 = ProductSnapshot.Create(
             Guid.NewGuid(),
             "Cappuccino",
             "Coffee with foam",
-            Money.Create(12.00m));
+            12.00m);
         order.AddItem(product1, Quantity.Create(2));
         order.AddItem(product2, Quantity.Create(1));
         GetOrderByIdQuery query = new(orderId, userId);
@@ -131,7 +131,8 @@ public sealed class GetOrderByIdQueryHandlerTests
             Guid.NewGuid(),
             "Latte",
             "Coffee with milk",
-            Money.Create(15.00m),
+            15.00m,
+            "BRL",
             "Large");
         order.AddItem(productSnapshot, Quantity.Create(1));
         GetOrderByIdQuery query = new(orderId, userId);

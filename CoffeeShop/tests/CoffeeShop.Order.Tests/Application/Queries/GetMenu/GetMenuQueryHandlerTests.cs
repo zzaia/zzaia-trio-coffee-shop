@@ -7,7 +7,6 @@ using Zzaia.CoffeeShop.Order.Application.Common.Interfaces;
 using Zzaia.CoffeeShop.Order.Application.Common.Models;
 using Zzaia.CoffeeShop.Order.Application.Queries.GetMenu;
 using Zzaia.CoffeeShop.Order.Domain.Entities;
-using Zzaia.CoffeeShop.Order.Domain.ValueObjects;
 
 /// <summary>
 /// Unit tests for GetMenuQueryHandler.
@@ -34,7 +33,7 @@ public sealed class GetMenuQueryHandlerTests
         Product product = Product.Create(
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m),
+            10.00m,
             "Coffee");
         List<Product> products = [product];
         GetMenuQuery query = new();
@@ -76,16 +75,16 @@ public sealed class GetMenuQueryHandlerTests
         Product product = Product.Create(
             "Latte",
             "Coffee with milk",
-            Money.Create(12.00m),
+            12.00m,
             "Coffee");
         ProductVariation variation1 = ProductVariation.Create(
             product.ProductId,
             "Small",
-            Money.Create(0.00m));
+            0.00m);
         ProductVariation variation2 = ProductVariation.Create(
             product.ProductId,
             "Large",
-            Money.Create(3.00m));
+            3.00m);
         product.AddVariation(variation1);
         product.AddVariation(variation2);
         List<Product> products = [product];
@@ -110,7 +109,7 @@ public sealed class GetMenuQueryHandlerTests
         Product product = Product.Create(
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m),
+            10.00m,
             "Coffee");
         product.SetAvailability(false);
         List<Product> products = [product];
@@ -131,17 +130,17 @@ public sealed class GetMenuQueryHandlerTests
         Product product1 = Product.Create(
             "Espresso",
             "Strong coffee",
-            Money.Create(10.00m),
+            10.00m,
             "Coffee");
         Product product2 = Product.Create(
             "Cappuccino",
             "Coffee with foam",
-            Money.Create(12.00m),
+            12.00m,
             "Coffee");
         Product product3 = Product.Create(
             "Croissant",
             "French pastry",
-            Money.Create(8.00m),
+            8.00m,
             "Bakery");
         List<Product> products = [product1, product2, product3];
         GetMenuQuery query = new();
@@ -174,8 +173,8 @@ public sealed class GetMenuQueryHandlerTests
     public async Task Handle_ShouldLogInformation_WhenMenuRetrievedSuccessfully()
     {
         List<Product> products = [
-            Product.Create("Espresso", "Strong coffee", Money.Create(10.00m), "Coffee"),
-            Product.Create("Cappuccino", "Coffee with foam", Money.Create(12.00m), "Coffee")
+            Product.Create("Espresso", "Strong coffee", 10.00m, "Coffee"),
+            Product.Create("Cappuccino", "Coffee with foam", 12.00m, "Coffee")
         ];
         GetMenuQuery query = new();
         productRepositoryMock

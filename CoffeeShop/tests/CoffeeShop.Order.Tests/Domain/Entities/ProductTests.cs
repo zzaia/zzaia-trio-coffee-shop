@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Zzaia.CoffeeShop.Order.Domain.Entities;
-using Zzaia.CoffeeShop.Order.Domain.ValueObjects;
 
 namespace Zzaia.CoffeeShop.Order.Tests.Domain.Entities;
 
@@ -9,11 +8,10 @@ public sealed class ProductTests
     [Fact]
     public void Create_ShouldCreateProductWithValidParameters()
     {
-        Money basePrice = Money.Create(15.00m);
         Product product = Product.Create(
             "Cappuccino",
             "Coffee with milk foam",
-            basePrice,
+            15.00m,
             "Hot Drinks");
         product.Name.Should().Be("Cappuccino");
         product.Description.Should().Be("Coffee with milk foam");
@@ -28,12 +26,12 @@ public sealed class ProductTests
     [Fact]
     public void Create_ShouldCreateProductWithImageUrl()
     {
-        Money basePrice = Money.Create(15.00m);
         Product product = Product.Create(
             "Cappuccino",
             "Coffee with milk foam",
-            basePrice,
+            15.00m,
             "Hot Drinks",
+            "BRL",
             "https://example.com/cappuccino.jpg");
         product.ImageUrl.Should().Be("https://example.com/cappuccino.jpg");
     }
@@ -41,11 +39,10 @@ public sealed class ProductTests
     [Fact]
     public void Create_ShouldThrowException_WhenNameIsEmpty()
     {
-        Money basePrice = Money.Create(15.00m);
         Action act = () => Product.Create(
             "",
             "Coffee with milk foam",
-            basePrice,
+            15.00m,
             "Hot Drinks");
         act.Should().Throw<ArgumentException>()
             .WithMessage("Name cannot be empty.*");
@@ -54,11 +51,10 @@ public sealed class ProductTests
     [Fact]
     public void Create_ShouldThrowException_WhenDescriptionIsEmpty()
     {
-        Money basePrice = Money.Create(15.00m);
         Action act = () => Product.Create(
             "Cappuccino",
             "",
-            basePrice,
+            15.00m,
             "Hot Drinks");
         act.Should().Throw<ArgumentException>()
             .WithMessage("Description cannot be empty.*");
@@ -67,41 +63,39 @@ public sealed class ProductTests
     [Fact]
     public void Create_ShouldThrowException_WhenCategoryIsEmpty()
     {
-        Money basePrice = Money.Create(15.00m);
         Action act = () => Product.Create(
             "Cappuccino",
             "Coffee with milk foam",
-            basePrice,
+            15.00m,
             "");
         act.Should().Throw<ArgumentException>()
             .WithMessage("Category cannot be empty.*");
     }
 
     [Fact]
-    public void Create_ShouldThrowException_WhenBasePriceIsNull()
+    public void Create_ShouldThrowException_WhenBasePriceIsNegative()
     {
         Action act = () => Product.Create(
             "Cappuccino",
             "Coffee with milk foam",
-            null!,
+            -1.00m,
             "Hot Drinks");
-        act.Should().Throw<ArgumentNullException>();
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("Base price cannot be negative.*");
     }
 
     [Fact]
     public void AddVariation_ShouldAddVariationToProduct()
     {
-        Money basePrice = Money.Create(15.00m);
         Product product = Product.Create(
             "Cappuccino",
             "Coffee with milk foam",
-            basePrice,
+            15.00m,
             "Hot Drinks");
-        Money priceAdjustment = Money.Create(2.00m);
         ProductVariation variation = ProductVariation.Create(
             product.ProductId,
             "Extra Shot",
-            priceAdjustment);
+            2.00m);
         product.AddVariation(variation);
         product.Variations.Should().HaveCount(1);
         product.Variations[0].Should().Be(variation);
@@ -110,17 +104,15 @@ public sealed class ProductTests
     [Fact]
     public void AddVariation_ShouldThrowException_WhenVariationDoesNotBelongToProduct()
     {
-        Money basePrice = Money.Create(15.00m);
         Product product = Product.Create(
             "Cappuccino",
             "Coffee with milk foam",
-            basePrice,
+            15.00m,
             "Hot Drinks");
-        Money priceAdjustment = Money.Create(2.00m);
         ProductVariation variation = ProductVariation.Create(
             Guid.NewGuid(),
             "Extra Shot",
-            priceAdjustment);
+            2.00m);
         Action act = () => product.AddVariation(variation);
         act.Should().Throw<InvalidOperationException>()
             .WithMessage("Variation does not belong to this product.");
@@ -129,11 +121,10 @@ public sealed class ProductTests
     [Fact]
     public void SetAvailability_ShouldUpdateAvailabilityStatus()
     {
-        Money basePrice = Money.Create(15.00m);
         Product product = Product.Create(
             "Cappuccino",
             "Coffee with milk foam",
-            basePrice,
+            15.00m,
             "Hot Drinks");
         product.SetAvailability(false);
         product.IsAvailable.Should().BeFalse();

@@ -44,8 +44,7 @@ public sealed class UpdateOrderStatusCommandHandlerTests
                 Guid.NewGuid(),
                 "Espresso",
                 "Strong coffee",
-                Money.Create(10.00m),
-                null),
+                10.00m),
             Quantity.Create(1));
         UpdateOrderStatusCommand command = new(orderId, OrderStatus.Preparation);
         orderRepositoryMock
@@ -89,8 +88,7 @@ public sealed class UpdateOrderStatusCommandHandlerTests
                 Guid.NewGuid(),
                 "Espresso",
                 "Strong coffee",
-                Money.Create(10.00m),
-                null),
+                10.00m),
             Quantity.Create(1));
         order.UpdateStatus(OrderStatus.Preparation);
         UpdateOrderStatusCommand command = new(orderId, OrderStatus.Ready);
@@ -135,8 +133,7 @@ public sealed class UpdateOrderStatusCommandHandlerTests
                 Guid.NewGuid(),
                 "Espresso",
                 "Strong coffee",
-                Money.Create(10.00m),
-                null),
+                10.00m),
             Quantity.Create(1));
         order.UpdateStatus(OrderStatus.Preparation);
         order.UpdateStatus(OrderStatus.Ready);
@@ -182,8 +179,7 @@ public sealed class UpdateOrderStatusCommandHandlerTests
                 Guid.NewGuid(),
                 "Espresso",
                 "Strong coffee",
-                Money.Create(10.00m),
-                null),
+                10.00m),
             Quantity.Create(1));
         UpdateOrderStatusCommand command = new(orderId, OrderStatus.Delivered);
         orderRepositoryMock
@@ -245,8 +241,7 @@ public sealed class UpdateOrderStatusCommandHandlerTests
                 Guid.NewGuid(),
                 "Espresso",
                 "Strong coffee",
-                Money.Create(10.00m),
-                null),
+                10.00m),
             Quantity.Create(1));
         UpdateOrderStatusCommand command = new(orderId, OrderStatus.Preparation);
         orderRepositoryMock
@@ -304,8 +299,7 @@ public sealed class UpdateOrderStatusCommandHandlerTests
                 Guid.NewGuid(),
                 "Espresso",
                 "Strong coffee",
-                Money.Create(10.00m),
-                null),
+                10.00m),
             Quantity.Create(1));
         UpdateOrderStatusCommand command = new(orderId, OrderStatus.Preparation);
         orderRepositoryMock

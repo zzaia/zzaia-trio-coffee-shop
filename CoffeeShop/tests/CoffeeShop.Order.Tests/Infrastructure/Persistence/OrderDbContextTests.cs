@@ -44,7 +44,7 @@ public sealed class OrderDbContextTests
         OrderDomain.Entities.Product product = OrderDomain.Entities.Product.Create(
             "Espresso",
             "Rich and bold espresso shot",
-            OrderDomain.ValueObjects.Money.Create(5.00m),
+            5.00m,
             "Coffee");
         context.Products.Add(product);
         await context.SaveChangesAsync();
@@ -52,7 +52,7 @@ public sealed class OrderDbContextTests
             .FirstOrDefaultAsync(p => p.Id == product.ProductId);
         retrievedProduct.Should().NotBeNull();
         retrievedProduct!.Name.Should().Be("Espresso");
-        retrievedProduct.BasePrice.Amount.Should().Be(5.00m);
+        retrievedProduct.BasePriceAmount.Should().Be(5.00m);
         retrievedProduct.Category.Should().Be("Coffee");
     }
 
@@ -70,16 +70,16 @@ public sealed class OrderDbContextTests
         OrderDomain.Entities.Product product = OrderDomain.Entities.Product.Create(
             "Cappuccino",
             "Espresso with steamed milk and foam",
-            OrderDomain.ValueObjects.Money.Create(7.00m),
+            7.00m,
             "Coffee");
         OrderDomain.Entities.ProductVariation smallVariation = OrderDomain.Entities.ProductVariation.Create(
             product.ProductId,
             "Small",
-            OrderDomain.ValueObjects.Money.Create(0.00m));
+            0.00m);
         OrderDomain.Entities.ProductVariation mediumVariation = OrderDomain.Entities.ProductVariation.Create(
             product.ProductId,
             "Medium",
-            OrderDomain.ValueObjects.Money.Create(2.50m));
+            2.50m);
         context.Products.Add(product);
         context.ProductVariations.Add(smallVariation);
         context.ProductVariations.Add(mediumVariation);
@@ -108,7 +108,7 @@ public sealed class OrderDbContextTests
             Guid.NewGuid(),
             "Latte",
             "Smooth espresso with steamed milk",
-            OrderDomain.ValueObjects.Money.Create(8.00m));
+            8.00m);
         order.AddItem(snapshot, OrderDomain.ValueObjects.Quantity.Create(2));
         context.Orders.Add(order);
         await context.SaveChangesAsync();
@@ -116,7 +116,7 @@ public sealed class OrderDbContextTests
             .FirstOrDefaultAsync(o => o.Id == order.OrderId);
         retrievedOrder.Should().NotBeNull();
         retrievedOrder!.UserId.Should().Be("user123");
-        retrievedOrder.TotalAmount.Amount.Should().Be(16.00m);
+        retrievedOrder.TotalAmount.Should().Be(16.00m);
     }
 
     /// <summary>

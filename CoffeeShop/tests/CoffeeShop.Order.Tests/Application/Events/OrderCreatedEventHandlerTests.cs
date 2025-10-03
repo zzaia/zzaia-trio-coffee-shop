@@ -3,7 +3,6 @@ using Moq;
 using Zzaia.CoffeeShop.Order.Application.Common.Interfaces;
 using Zzaia.CoffeeShop.Order.Application.Events;
 using Zzaia.CoffeeShop.Order.Domain.Events;
-using Zzaia.CoffeeShop.Order.Domain.ValueObjects;
 
 namespace Zzaia.CoffeeShop.Order.Tests.Application.Events;
 
@@ -28,7 +27,8 @@ public sealed class OrderCreatedEventHandlerTests
         OrderCreatedEvent domainEvent = new(
             Guid.NewGuid(),
             "user-123",
-            Money.Create(100.50m),
+            100.50m,
+            "BRL",
             DateTimeOffset.UtcNow);
 
         // Act
@@ -49,10 +49,11 @@ public sealed class OrderCreatedEventHandlerTests
         // Arrange
         Guid orderId = Guid.NewGuid();
         string userId = "user-123";
-        Money totalAmount = Money.Create(100.50m);
+        decimal totalAmount = 100.50m;
+        string currency = "BRL";
         DateTimeOffset createdAt = DateTimeOffset.UtcNow;
 
-        OrderCreatedEvent domainEvent = new(orderId, userId, totalAmount, createdAt);
+        OrderCreatedEvent domainEvent = new(orderId, userId, totalAmount, currency, createdAt);
 
         object? capturedPayload = null;
         _mockEventPublisher
