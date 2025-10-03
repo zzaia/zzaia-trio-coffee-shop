@@ -24,9 +24,14 @@ public sealed class ProductVariation : Entity
     public required string Name { get; init; }
 
     /// <summary>
-    /// Gets the price adjustment for this variation.
+    /// Gets the price adjustment amount.
     /// </summary>
-    public required Money PriceAdjustment { get; init; }
+    public required decimal PriceAdjustmentAmount { get; init; }
+
+    /// <summary>
+    /// Gets the currency.
+    /// </summary>
+    public required string Currency { get; init; }
 
     private ProductVariation()
     {
@@ -54,7 +59,8 @@ public sealed class ProductVariation : Entity
             Id = Guid.NewGuid(),
             ProductId = productId,
             Name = name,
-            PriceAdjustment = priceAdjustment ?? throw new ArgumentNullException(nameof(priceAdjustment))
+            PriceAdjustmentAmount = priceAdjustment.Amount,
+            Currency = priceAdjustment.Currency
         };
     }
 }

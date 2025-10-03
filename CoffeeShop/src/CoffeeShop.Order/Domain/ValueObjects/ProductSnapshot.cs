@@ -23,9 +23,14 @@ public sealed class ProductSnapshot : ValueObject
     public string Description { get; init; }
 
     /// <summary>
-    /// Gets the unit price.
+    /// Gets the unit price amount.
     /// </summary>
-    public Money UnitPrice { get; init; }
+    public decimal UnitPriceAmount { get; init; }
+
+    /// <summary>
+    /// Gets the currency.
+    /// </summary>
+    public string Currency { get; init; }
 
     /// <summary>
     /// Gets the variation name.
@@ -37,10 +42,11 @@ public sealed class ProductSnapshot : ValueObject
         ProductId = Guid.Empty;
         Name = string.Empty;
         Description = string.Empty;
-        UnitPrice = Money.Create(0);
+        UnitPriceAmount = 0m;
+        Currency = "BRL";
     }
 
-    private ProductSnapshot(Guid productId, string name, string description, Money unitPrice, string? variationName)
+    private ProductSnapshot(Guid productId, string name, string description, decimal unitPriceAmount, string currency, string? variationName)
     {
         if (productId == Guid.Empty)
         {
@@ -54,10 +60,19 @@ public sealed class ProductSnapshot : ValueObject
         {
             throw new ArgumentException("Description cannot be empty.", nameof(description));
         }
+        if (unitPriceAmount < 0)
+        {
+            throw new ArgumentException("Unit price cannot be negative.", nameof(unitPriceAmount));
+        }
+        if (string.IsNullOrWhiteSpace(currency))
+        {
+            throw new ArgumentException("Currency cannot be empty.", nameof(currency));
+        }
         ProductId = productId;
         Name = name;
         Description = description;
-        UnitPrice = unitPrice ?? throw new ArgumentNullException(nameof(unitPrice));
+        UnitPriceAmount = unitPriceAmount;
+        Currency = currency;
         VariationName = variationName;
     }
 
@@ -67,17 +82,19 @@ public sealed class ProductSnapshot : ValueObject
     /// <param name="productId">The product identifier.</param>
     /// <param name="name">The product name.</param>
     /// <param name="description">The product description.</param>
-    /// <param name="unitPrice">The unit price.</param>
+    /// <param name="unitPriceAmount">The unit price amount.</param>
+    /// <param name="currency">The currency.</param>
     /// <param name="variationName">The variation name.</param>
     /// <returns>A new ProductSnapshot instance.</returns>
     public static ProductSnapshot Create(
         Guid productId,
         string name,
         string description,
-        Money unitPrice,
+        decimal unitPriceAmount,
+        string currency = "BRL",
         string? variationName = null)
     {
-        return new ProductSnapshot(productId, name, description, unitPrice, variationName);
+        return new ProductSnapshot(productId, name, description, unitPriceAmount, currency, variationName);
     }
 
     protected override IEnumerable<object?> GetEqualityComponents()
@@ -85,7 +102,8 @@ public sealed class ProductSnapshot : ValueObject
         yield return ProductId;
         yield return Name;
         yield return Description;
-        yield return UnitPrice;
+        yield return UnitPriceAmount;
+        yield return Currency;
         yield return VariationName;
     }
 }

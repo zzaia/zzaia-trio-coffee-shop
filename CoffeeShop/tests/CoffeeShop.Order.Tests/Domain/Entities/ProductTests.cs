@@ -17,7 +17,8 @@ public sealed class ProductTests
             "Hot Drinks");
         product.Name.Should().Be("Cappuccino");
         product.Description.Should().Be("Coffee with milk foam");
-        product.BasePrice.Should().Be(basePrice);
+        product.BasePriceAmount.Should().Be(15.00m);
+        product.Currency.Should().Be("BRL");
         product.Category.Should().Be("Hot Drinks");
         product.IsAvailable.Should().BeTrue();
         product.ImageUrl.Should().BeNull();

@@ -15,7 +15,8 @@ public sealed class OrderTests
         OrderEntity order = OrderEntity.Create(userId);
         order.UserId.Should().Be(userId);
         order.Status.Should().Be(OrderStatus.Waiting);
-        order.TotalAmount.Amount.Should().Be(0m);
+        order.TotalAmount.Should().Be(0m);
+        order.Currency.Should().Be("BRL");
         order.Items.Should().BeEmpty();
         order.OrderId.Should().NotBeEmpty();
         order.CreatedAt.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1));
@@ -32,6 +33,7 @@ public sealed class OrderTests
         domainEvent.OrderId.Should().Be(order.OrderId);
         domainEvent.UserId.Should().Be(userId);
         domainEvent.TotalAmount.Should().Be(order.TotalAmount);
+        domainEvent.Currency.Should().Be(order.Currency);
     }
 
     [Fact]
@@ -47,16 +49,15 @@ public sealed class OrderTests
     {
         OrderEntity order = OrderEntity.Create("user123");
         Guid productId = Guid.NewGuid();
-        Money unitPrice = Money.Create(15.00m);
         ProductSnapshot snapshot = ProductSnapshot.Create(
             productId,
             "Cappuccino",
             "Coffee with milk foam",
-            unitPrice);
+            15.00m);
         Quantity quantity = Quantity.Create(2);
         order.AddItem(snapshot, quantity);
         order.Items.Should().HaveCount(1);
-        order.TotalAmount.Amount.Should().Be(30.00m);
+        order.TotalAmount.Should().Be(30.00m);
     }
 
     [Fact]
@@ -64,25 +65,23 @@ public sealed class OrderTests
     {
         OrderEntity order = OrderEntity.Create("user123");
         Guid productId1 = Guid.NewGuid();
-        Money unitPrice1 = Money.Create(15.00m);
         ProductSnapshot snapshot1 = ProductSnapshot.Create(
             productId1,
             "Cappuccino",
             "Coffee with milk foam",
-            unitPrice1);
+            15.00m);
         Quantity quantity1 = Quantity.Create(2);
         order.AddItem(snapshot1, quantity1);
         Guid productId2 = Guid.NewGuid();
-        Money unitPrice2 = Money.Create(10.00m);
         ProductSnapshot snapshot2 = ProductSnapshot.Create(
             productId2,
             "Latte",
             "Coffee with steamed milk",
-            unitPrice2);
+            10.00m);
         Quantity quantity2 = Quantity.Create(1);
         order.AddItem(snapshot2, quantity2);
         order.Items.Should().HaveCount(2);
-        order.TotalAmount.Amount.Should().Be(40.00m);
+        order.TotalAmount.Should().Be(40.00m);
     }
 
     [Fact]
@@ -91,12 +90,11 @@ public sealed class OrderTests
         OrderEntity order = OrderEntity.Create("user123");
         order.UpdateStatus(OrderStatus.Preparation);
         Guid productId = Guid.NewGuid();
-        Money unitPrice = Money.Create(15.00m);
         ProductSnapshot snapshot = ProductSnapshot.Create(
             productId,
             "Cappuccino",
             "Coffee with milk foam",
-            unitPrice);
+            15.00m);
         Quantity quantity = Quantity.Create(2);
         Action act = () => order.AddItem(snapshot, quantity);
         act.Should().Throw<InvalidOperationException>()
@@ -108,18 +106,17 @@ public sealed class OrderTests
     {
         OrderEntity order = OrderEntity.Create("user123");
         Guid productId = Guid.NewGuid();
-        Money unitPrice = Money.Create(15.00m);
         ProductSnapshot snapshot = ProductSnapshot.Create(
             productId,
             "Cappuccino",
             "Coffee with milk foam",
-            unitPrice);
+            15.00m);
         Quantity quantity = Quantity.Create(2);
         order.AddItem(snapshot, quantity);
         Guid orderItemId = order.Items[0].OrderItemId;
         order.RemoveItem(orderItemId);
         order.Items.Should().BeEmpty();
-        order.TotalAmount.Amount.Should().Be(0m);
+        order.TotalAmount.Should().Be(0m);
     }
 
     [Fact]
@@ -136,12 +133,11 @@ public sealed class OrderTests
     {
         OrderEntity order = OrderEntity.Create("user123");
         Guid productId = Guid.NewGuid();
-        Money unitPrice = Money.Create(15.00m);
         ProductSnapshot snapshot = ProductSnapshot.Create(
             productId,
             "Cappuccino",
             "Coffee with milk foam",
-            unitPrice);
+            15.00m);
         Quantity quantity = Quantity.Create(2);
         order.AddItem(snapshot, quantity);
         Guid orderItemId = order.Items[0].OrderItemId;
@@ -222,30 +218,28 @@ public sealed class OrderTests
     {
         OrderEntity order = OrderEntity.Create("user123");
         Guid productId1 = Guid.NewGuid();
-        Money unitPrice1 = Money.Create(12.50m);
         ProductSnapshot snapshot1 = ProductSnapshot.Create(
             productId1,
             "Latte",
             "Coffee with steamed milk",
-            unitPrice1);
+            12.50m);
         Quantity quantity1 = Quantity.Create(2);
         order.AddItem(snapshot1, quantity1);
         Guid productId2 = Guid.NewGuid();
-        Money unitPrice2 = Money.Create(15.00m);
         ProductSnapshot snapshot2 = ProductSnapshot.Create(
             productId2,
             "Cappuccino",
             "Coffee with milk foam",
-            unitPrice2);
+            15.00m);
         Quantity quantity2 = Quantity.Create(3);
         order.AddItem(snapshot2, quantity2);
-        order.TotalAmount.Amount.Should().Be(70.00m);
+        order.TotalAmount.Should().Be(70.00m);
     }
 
     [Fact]
     public void CalculateTotal_ShouldReturnZero_WhenNoItems()
     {
         OrderEntity order = OrderEntity.Create("user123");
-        order.TotalAmount.Amount.Should().Be(0m);
+        order.TotalAmount.Should().Be(0m);
     }
 }

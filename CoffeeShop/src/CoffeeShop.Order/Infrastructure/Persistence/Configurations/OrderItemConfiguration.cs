@@ -41,17 +41,14 @@ internal sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderIte
             snapshot.Property(s => s.VariationName)
                 .HasColumnName("variation_name")
                 .HasMaxLength(200);
-            snapshot.OwnsOne(s => s.UnitPrice, unitPrice =>
-            {
-                unitPrice.Property(m => m.Amount)
-                    .HasColumnName("unit_price_amount")
-                    .HasColumnType("decimal(18,2)")
-                    .IsRequired();
-                unitPrice.Property(m => m.Currency)
-                    .HasColumnName("unit_price_currency")
-                    .HasMaxLength(3)
-                    .IsRequired();
-            });
+            snapshot.Property(s => s.UnitPriceAmount)
+                .HasColumnName("unit_price_amount")
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+            snapshot.Property(s => s.Currency)
+                .HasColumnName("unit_price_currency")
+                .HasMaxLength(3)
+                .IsRequired();
         });
         builder.Property(oi => oi.Quantity)
             .HasColumnName("quantity")
@@ -59,17 +56,14 @@ internal sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderIte
                 quantity => quantity.Value,
                 value => Quantity.Create(value))
             .IsRequired();
-        builder.OwnsOne(oi => oi.Subtotal, subtotal =>
-        {
-            subtotal.Property(m => m.Amount)
-                .HasColumnName("subtotal_amount")
-                .HasColumnType("decimal(18,2)")
-                .IsRequired();
-            subtotal.Property(m => m.Currency)
-                .HasColumnName("subtotal_currency")
-                .HasMaxLength(3)
-                .IsRequired();
-        });
+        builder.Property(oi => oi.SubtotalAmount)
+            .HasColumnName("subtotal_amount")
+            .HasColumnType("decimal(18,2)")
+            .IsRequired();
+        builder.Property(oi => oi.Currency)
+            .HasColumnName("subtotal_currency")
+            .HasMaxLength(3)
+            .IsRequired();
         builder.Ignore(oi => oi.OrderItemId);
         builder.Ignore(oi => oi.DomainEvents);
     }

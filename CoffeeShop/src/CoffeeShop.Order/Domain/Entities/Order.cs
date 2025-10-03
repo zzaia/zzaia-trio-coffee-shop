@@ -30,7 +30,12 @@ public sealed class Order : Entity
     /// <summary>
     /// Gets the total amount.
     /// </summary>
-    public Money TotalAmount { get; private set; }
+    public decimal TotalAmount { get; private set; }
+
+    /// <summary>
+    /// Gets the currency.
+    /// </summary>
+    public string Currency { get; private set; }
 
     /// <summary>
     /// Gets the order status.
@@ -54,7 +59,8 @@ public sealed class Order : Entity
 
     private Order()
     {
-        TotalAmount = Money.Create(0);
+        TotalAmount = 0m;
+        Currency = "BRL";
         Status = OrderStatus.Waiting;
         CreatedAt = DateTimeOffset.UtcNow;
         UpdatedAt = DateTimeOffset.UtcNow;
@@ -80,6 +86,7 @@ public sealed class Order : Entity
             order.OrderId,
             order.UserId,
             order.TotalAmount,
+            order.Currency,
             order.CreatedAt));
         return order;
     }
@@ -163,15 +170,12 @@ public sealed class Order : Entity
     {
         if (items.Count == 0)
         {
-            TotalAmount = Money.Create(0);
+            TotalAmount = 0m;
+            Currency = "BRL";
             return;
         }
-        Money total = items[0].Subtotal;
-        for (int i = 1; i < items.Count; i++)
-        {
-            total = total.Add(items[i].Subtotal);
-        }
-        TotalAmount = total;
+        TotalAmount = items.Sum(item => item.SubtotalAmount);
+        Currency = items.First().Currency;
     }
 
     private static bool IsValidStatusTransition(OrderStatus currentStatus, OrderStatus newStatus)

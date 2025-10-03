@@ -19,7 +19,8 @@ public sealed class OrderCreatedEventHandler(IEventPublisher eventPublisher)
         {
             order_id = notification.OrderId,
             user_id = notification.UserId,
-            total_amount = notification.TotalAmount.Amount,
+            total_amount = notification.TotalAmount,
+            currency = notification.Currency,
             created_at = notification.CreatedAt
         };
 

@@ -41,17 +41,14 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Domain.Entit
         builder.Property(o => o.UpdatedAt)
             .HasColumnName("updated_at")
             .IsRequired();
-        builder.OwnsOne(o => o.TotalAmount, money =>
-        {
-            money.Property(m => m.Amount)
-                .HasColumnName("total_amount")
-                .HasColumnType("decimal(18,2)")
-                .IsRequired();
-            money.Property(m => m.Currency)
-                .HasColumnName("total_currency")
-                .HasMaxLength(3)
-                .IsRequired();
-        });
+        builder.Property(o => o.TotalAmount)
+            .HasColumnName("total_amount")
+            .HasColumnType("decimal(18,2)")
+            .IsRequired();
+        builder.Property(o => o.Currency)
+            .HasColumnName("total_currency")
+            .HasMaxLength(3)
+            .IsRequired();
         builder.Navigation(o => o.Items)
             .UsePropertyAccessMode(PropertyAccessMode.Field)
             .HasField("items");

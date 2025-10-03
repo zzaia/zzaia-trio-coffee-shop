@@ -55,8 +55,9 @@ public sealed class OrderDbContext(
     /// <returns>The number of state entries written to the database.</returns>
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        UpdateTimestamps();
-        await DispatchDomainEventsAsync(cancellationToken);
+        //TODO: No need at the moment, but if you want to implement auditing or domain event dispatching, you can uncomment these lines.
+        // UpdateTimestamps();
+        // await DispatchDomainEventsAsync(cancellationToken);
         return await base.SaveChangesAsync(cancellationToken);
     }
 

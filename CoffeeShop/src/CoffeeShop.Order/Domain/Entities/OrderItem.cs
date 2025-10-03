@@ -29,13 +29,19 @@ public sealed class OrderItem : Entity
     public required Quantity Quantity { get; init; }
 
     /// <summary>
-    /// Gets the subtotal.
+    /// Gets the subtotal amount.
     /// </summary>
-    public Money Subtotal { get; private set; }
+    public decimal SubtotalAmount { get; private set; }
+
+    /// <summary>
+    /// Gets the currency.
+    /// </summary>
+    public string Currency { get; private set; }
 
     private OrderItem()
     {
-        Subtotal = Money.Create(0);
+        SubtotalAmount = 0m;
+        Currency = "BRL";
     }
 
     /// <summary>
@@ -67,6 +73,7 @@ public sealed class OrderItem : Entity
     /// </summary>
     public void CalculateSubtotal()
     {
-        Subtotal = ProductSnapshot.UnitPrice * Quantity.Value;
+        SubtotalAmount = ProductSnapshot.UnitPriceAmount * Quantity.Value;
+        Currency = ProductSnapshot.Currency;
     }
 }

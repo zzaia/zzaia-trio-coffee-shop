@@ -37,7 +37,8 @@ public class CreateOrderCommandHandler(
             {
                 return Result<Guid>.Failure($"Product '{product.Name}' is not available");
             }
-            Money unitPrice = product.BasePrice;
+            decimal unitPriceAmount = product.BasePriceAmount;
+            string currency = product.Currency;
             string? variationName = null;
             if (request.Item.VariationId.HasValue)
             {
@@ -48,22 +49,23 @@ public class CreateOrderCommandHandler(
                 {
                     return Result<Guid>.Failure($"Product variation with ID {request.Item.VariationId.Value} not found");
                 }
-                unitPrice = product.BasePrice.Add(variation.PriceAdjustment);
+                unitPriceAmount = product.BasePriceAmount + variation.PriceAdjustmentAmount;
                 variationName = variation.Name;
             }
             ProductSnapshot snapshot = ProductSnapshot.Create(
                 product.ProductId,
                 product.Name,
                 product.Description,
-                unitPrice,
+                unitPriceAmount,
+                currency,
                 variationName);
             Quantity quantity = Quantity.Create(request.Item.Quantity);
             order.AddItem(snapshot, quantity);
 
             PaymentRequest paymentRequest = new(
                 order.OrderId.ToString(),
-                order.TotalAmount.Amount,
-                order.TotalAmount.Currency,
+                order.TotalAmount,
+                order.Currency,
                 order.UserId);
             PaymentResult paymentResult = await paymentService.ProcessPaymentAsync(
                 paymentRequest,
@@ -99,8 +101,8 @@ public class CreateOrderCommandHandler(
                     paymentResult.TransactionId);
                 await paymentService.RefundPaymentAsync(
                     paymentResult.TransactionId!,
-                    order.TotalAmount.Amount,
-                    order.TotalAmount.Currency,
+                    order.TotalAmount,
+                    order.Currency,
                     cancellationToken);
                 throw;
             }

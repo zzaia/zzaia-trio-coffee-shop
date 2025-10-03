@@ -17,7 +17,8 @@ public sealed class ProductVariationTests
             priceAdjustment);
         variation.ProductId.Should().Be(productId);
         variation.Name.Should().Be("Extra Shot");
-        variation.PriceAdjustment.Should().Be(priceAdjustment);
+        variation.PriceAdjustmentAmount.Should().Be(2.50m);
+        variation.Currency.Should().Be("BRL");
         variation.VariationId.Should().NotBeEmpty();
     }
 

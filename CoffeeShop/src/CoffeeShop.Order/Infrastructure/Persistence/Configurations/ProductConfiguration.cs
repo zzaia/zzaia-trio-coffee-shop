@@ -38,17 +38,14 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.IsAvailable)
             .HasColumnName("is_available")
             .IsRequired();
-        builder.OwnsOne(p => p.BasePrice, price =>
-        {
-            price.Property(m => m.Amount)
-                .HasColumnName("base_price_amount")
-                .HasColumnType("decimal(18,2)")
-                .IsRequired();
-            price.Property(m => m.Currency)
-                .HasColumnName("base_price_currency")
-                .HasMaxLength(3)
-                .IsRequired();
-        });
+        builder.Property(p => p.BasePriceAmount)
+            .HasColumnName("base_price_amount")
+            .HasColumnType("decimal(18,2)")
+            .IsRequired();
+        builder.Property(p => p.Currency)
+            .HasColumnName("base_price_currency")
+            .HasMaxLength(3)
+            .IsRequired();
         builder.HasMany(p => p.Variations)
             .WithOne()
             .HasForeignKey(pv => pv.ProductId)

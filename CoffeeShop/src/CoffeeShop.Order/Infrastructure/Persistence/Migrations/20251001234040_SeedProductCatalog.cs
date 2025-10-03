@@ -14,7 +14,23 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
             migrationBuilder.Sql(@"
                 DELETE FROM ""order"".""product_variations"";
                 DELETE FROM ""order"".""products"";
+                DELETE FROM ""order"".""users"";
             ");
+
+            // User seed data
+            migrationBuilder.InsertData(
+                schema: "order",
+                table: "users",
+                columns: new[] { "user_id", "email", "full_name", "role", "created_at", "updated_at" },
+                values: new object[,]
+                {
+                    { "11111111-aaaa-aaaa-aaaa-111111111111", "john.doe@coffee.com", "John Doe", "Customer", new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero), new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero) },
+                    { "22222222-aaaa-aaaa-aaaa-222222222222", "jane.smith@coffee.com", "Jane Smith", "Customer", new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero), new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero) },
+                    { "33333333-aaaa-aaaa-aaaa-333333333333", "mike.johnson@coffee.com", "Mike Johnson", "Customer", new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero), new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero) },
+                    { "44444444-aaaa-aaaa-aaaa-444444444444", "sarah.williams@coffee.com", "Sarah Williams", "Manager", new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero), new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero) },
+                    { "55555555-aaaa-aaaa-aaaa-555555555555", "tom.brown@coffee.com", "Tom Brown", "Manager", new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero), new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero) },
+                    { "66666666-aaaa-aaaa-aaaa-666666666666", "admin@coffee.com", "Admin User", "Admin", new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero), new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero) }
+                });
 
             // Product IDs
             Guid latteId = Guid.Parse("11111111-1111-1111-1111-111111111111");

@@ -28,16 +28,16 @@ public class GetMenuQueryHandler(
                 product.ProductId,
                 product.Name,
                 product.Description,
-                product.BasePrice.Amount,
-                product.BasePrice.Currency,
+                product.BasePriceAmount,
+                product.Currency,
                 product.Category,
                 product.ImageUrl,
                 product.IsAvailable,
                 product.Variations.Select(variation => new ProductVariationDto(
                     variation.VariationId,
                     variation.Name,
-                    variation.PriceAdjustment.Amount,
-                    variation.PriceAdjustment.Currency
+                    variation.PriceAdjustmentAmount,
+                    variation.Currency
                 )).ToList()
             )).ToList();
             MenuDto menu = new MenuDto(productDtos);

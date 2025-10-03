@@ -1,6 +1,5 @@
 using MediatR;
 using Zzaia.CoffeeShop.Order.Domain.Common;
-using Zzaia.CoffeeShop.Order.Domain.ValueObjects;
 
 namespace Zzaia.CoffeeShop.Order.Domain.Events;
 
@@ -10,5 +9,6 @@ namespace Zzaia.CoffeeShop.Order.Domain.Events;
 public sealed record OrderCreatedEvent(
     Guid OrderId,
     string UserId,
-    Money TotalAmount,
+    decimal TotalAmount,
+    string Currency,
     DateTimeOffset CreatedAt) : IDomainEvent, INotification;

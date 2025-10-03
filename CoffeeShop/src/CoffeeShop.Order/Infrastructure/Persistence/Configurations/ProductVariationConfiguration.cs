@@ -27,17 +27,14 @@ internal sealed class ProductVariationConfiguration : IEntityTypeConfiguration<P
             .HasColumnName("name")
             .HasMaxLength(200)
             .IsRequired();
-        builder.OwnsOne(pv => pv.PriceAdjustment, price =>
-        {
-            price.Property(m => m.Amount)
-                .HasColumnName("price_adjustment_amount")
-                .HasColumnType("decimal(18,2)")
-                .IsRequired();
-            price.Property(m => m.Currency)
-                .HasColumnName("price_adjustment_currency")
-                .HasMaxLength(3)
-                .IsRequired();
-        });
+        builder.Property(pv => pv.PriceAdjustmentAmount)
+            .HasColumnName("price_adjustment_amount")
+            .HasColumnType("decimal(18,2)")
+            .IsRequired();
+        builder.Property(pv => pv.Currency)
+            .HasColumnName("price_adjustment_currency")
+            .HasMaxLength(3)
+            .IsRequired();
         builder.Ignore(pv => pv.VariationId);
         builder.Ignore(pv => pv.DomainEvents);
     }

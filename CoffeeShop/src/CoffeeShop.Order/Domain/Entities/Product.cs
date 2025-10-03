@@ -26,9 +26,14 @@ public sealed class Product : Entity
     public required string Description { get; init; }
 
     /// <summary>
-    /// Gets the base price.
+    /// Gets the base price amount.
     /// </summary>
-    public required Money BasePrice { get; init; }
+    public required decimal BasePriceAmount { get; init; }
+
+    /// <summary>
+    /// Gets the currency.
+    /// </summary>
+    public required string Currency { get; init; }
 
     /// <summary>
     /// Gets the product category.
@@ -88,7 +93,8 @@ public sealed class Product : Entity
             Id = Guid.NewGuid(),
             Name = name,
             Description = description,
-            BasePrice = basePrice ?? throw new ArgumentNullException(nameof(basePrice)),
+            BasePriceAmount = basePrice.Amount,
+            Currency = basePrice.Currency,
             Category = category,
             ImageUrl = imageUrl
         };
