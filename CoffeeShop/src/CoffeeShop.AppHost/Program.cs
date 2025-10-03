@@ -23,6 +23,7 @@ if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(dbPassword.Resou
 IResourceBuilder<PostgresServerResource> sqlServer = builder
     .AddPostgres("postgres-coffee-shop", dbPassword)
     .WithImage("postgres", "15-alpine")
+    .WithEndpoint("tcp", endpoint => endpoint.Port = 5432, createIfNotExists: true)
     .WithLifetime(ContainerLifetime.Persistent)
     .WithVolume("zzaia-coffee-shop-postgres-data", "/var/lib/postgresql/data");
 
