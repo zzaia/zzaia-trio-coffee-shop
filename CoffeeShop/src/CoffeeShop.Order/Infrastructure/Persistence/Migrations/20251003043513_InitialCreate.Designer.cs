@@ -12,7 +12,7 @@ using Zzaia.CoffeeShop.Order.Infrastructure.Persistence;
 namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(OrderDbContext))]
-    [Migration("20251001234017_InitialCreate")]
+    [Migration("20251003043513_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -40,7 +40,7 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(3)
                         .HasColumnType("character varying(3)")
-                        .HasColumnName("currency");
+                        .HasColumnName("total_currency");
 
                     b.Property<string>("PaymentTransactionId")
                         .HasMaxLength(256)
@@ -52,7 +52,7 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
                         .HasColumnName("status");
 
                     b.Property<decimal>("TotalAmount")
-                        .HasColumnType("numeric(18,2)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnName("total_amount");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
@@ -90,7 +90,7 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(3)
                         .HasColumnType("character varying(3)")
-                        .HasColumnName("currency");
+                        .HasColumnName("subtotal_currency");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid")
@@ -101,7 +101,7 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
                         .HasColumnName("quantity");
 
                     b.Property<decimal>("SubtotalAmount")
-                        .HasColumnType("numeric(18,2)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnName("subtotal_amount");
 
                     b.HasKey("Id")
@@ -120,20 +120,20 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
                         .HasColumnName("product_id");
 
                     b.Property<decimal>("BasePriceAmount")
-                        .HasColumnType("numeric(18,2)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnName("base_price_amount");
-
-                    b.Property<string>("BasePriceCurrency")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("base_price_currency");
 
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("category");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("base_price_currency");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -174,6 +174,12 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("variation_id");
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("price_adjustment_currency");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -181,14 +187,8 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
                         .HasColumnName("name");
 
                     b.Property<decimal>("PriceAdjustmentAmount")
-                        .HasColumnType("numeric(18,2)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnName("price_adjustment_amount");
-
-                    b.Property<string>("PriceAdjustmentCurrency")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("price_adjustment_currency");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid")
@@ -248,7 +248,7 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Zzaia.CoffeeShop.Order.Domain.Entities.OrderItem", b =>
                 {
                     b.HasOne("Zzaia.CoffeeShop.Order.Domain.Entities.Order", null)
-                        .WithMany()
+                        .WithMany("Items")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -259,6 +259,12 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
                             b1.Property<Guid>("OrderItemId")
                                 .HasColumnType("uuid")
                                 .HasColumnName("order_item_id");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("unit_price_currency");
 
                             b1.Property<string>("Description")
                                 .IsRequired()
@@ -277,14 +283,8 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
                                 .HasColumnName("product_id");
 
                             b1.Property<decimal>("UnitPriceAmount")
-                                .HasColumnType("numeric(18,2)")
+                                .HasColumnType("decimal(18,2)")
                                 .HasColumnName("unit_price_amount");
-
-                            b1.Property<string>("UnitPriceCurrency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
-                                .HasColumnName("unit_price_currency");
 
                             b1.Property<string>("VariationName")
                                 .HasMaxLength(200)
@@ -307,11 +307,21 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Zzaia.CoffeeShop.Order.Domain.Entities.ProductVariation", b =>
                 {
                     b.HasOne("Zzaia.CoffeeShop.Order.Domain.Entities.Product", null)
-                        .WithMany()
+                        .WithMany("Variations")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_product_variations_products_product_id");
+                });
+
+            modelBuilder.Entity("Zzaia.CoffeeShop.Order.Domain.Entities.Order", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Zzaia.CoffeeShop.Order.Domain.Entities.Product", b =>
+                {
+                    b.Navigation("Variations");
                 });
 #pragma warning restore 612, 618
         }

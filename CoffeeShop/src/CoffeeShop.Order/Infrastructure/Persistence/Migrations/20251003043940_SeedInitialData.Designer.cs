@@ -12,8 +12,8 @@ using Zzaia.CoffeeShop.Order.Infrastructure.Persistence;
 namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(OrderDbContext))]
-    [Migration("20251003035921_SeedProductCatalogAndUsers")]
-    partial class SeedProductCatalogAndUsers
+    [Migration("20251003043940_SeedInitialData")]
+    partial class SeedInitialData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

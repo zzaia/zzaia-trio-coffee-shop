@@ -22,7 +22,7 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
                     order_id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     total_amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                    currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
+                    total_currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
                     status = table.Column<int>(type: "integer", nullable: false),
                     payment_transaction_id = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -84,7 +84,7 @@ namespace Zzaia.CoffeeShop.Order.Infrastructure.Persistence.Migrations
                     variation_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     subtotal_amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                    currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false)
+                    subtotal_currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false)
                 },
                 constraints: table =>
                 {
