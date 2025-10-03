@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 using Zzaia.CoffeeShop.Order.Application;
 using Zzaia.CoffeeShop.Order.Infrastructure;
 using Zzaia.CoffeeShop.Order.Infrastructure.Middleware;
@@ -13,7 +14,10 @@ builder.AddServiceDefaults();
 builder.AddPostgreSqlPersistence<OrderDbContext>("db-order");
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
