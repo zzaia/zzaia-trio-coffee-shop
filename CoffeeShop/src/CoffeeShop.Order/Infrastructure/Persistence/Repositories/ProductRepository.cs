@@ -19,7 +19,7 @@ internal sealed class ProductRepository(OrderDbContext context) : IProductReposi
     {
         return await context.Products
             .Include(p => p.Variations)
-            .FirstOrDefaultAsync(p => p.ProductId == productId, cancellationToken);
+            .FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
     }
 
     /// <summary>
@@ -58,6 +58,6 @@ internal sealed class ProductRepository(OrderDbContext context) : IProductReposi
     public async Task<ProductVariation?> GetVariationByIdAsync(Guid variationId, CancellationToken cancellationToken = default)
     {
         return await context.ProductVariations
-            .FirstOrDefaultAsync(v => v.VariationId == variationId, cancellationToken);
+            .FirstOrDefaultAsync(v => v.Id == variationId, cancellationToken);
     }
 }

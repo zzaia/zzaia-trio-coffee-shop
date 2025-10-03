@@ -97,20 +97,15 @@ public static class OrderEndpoints
     }
 
     private static async Task<IResult> CreateOrderAsync(
-        [FromBody] CreateOrderRequest request,
+        [FromBody] CreateOrderItemRequest request,
         HttpContext httpContext,
         [FromServices] ISender mediator,
         CancellationToken cancellationToken)
     {
-        string? userId = httpContext.User.FindFirst("sub")?.Value
-            ?? httpContext.User.FindFirst("userId")?.Value
+        string? userId = httpContext.Request.Headers.TryGetValue("userId", out var sub) ? sub.ToString() :
+            httpContext.User.FindFirst("userId")?.Value
             ?? throw new InvalidOperationException("User ID not found in token");
-        CreateOrderCommand command = new(
-            userId,
-            request.Items.Select(item => new OrderItemRequest(
-                item.ProductId,
-                item.VariationId,
-                item.Quantity)).ToList());
+        CreateOrderCommand command = new(userId, request);
         Result<Guid> result = await mediator.Send(command, cancellationToken);
         if (!result.IsSuccess)
         {
@@ -130,8 +125,8 @@ public static class OrderEndpoints
         [FromServices] ISender mediator,
         CancellationToken cancellationToken)
     {
-        string? userId = httpContext.User.FindFirst("sub")?.Value
-            ?? httpContext.User.FindFirst("userId")?.Value
+        string? userId = httpContext.Request.Headers.TryGetValue("userId", out var sub) ? sub.ToString() :
+            httpContext.User.FindFirst("userId")?.Value
             ?? throw new InvalidOperationException("User ID not found in token");
         GetOrderByIdQuery query = new(id, userId);
         Result<OrderDto> result = await mediator.Send(query, cancellationToken);

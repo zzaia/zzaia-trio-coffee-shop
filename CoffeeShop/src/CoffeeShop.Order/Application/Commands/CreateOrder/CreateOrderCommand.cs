@@ -2,15 +2,16 @@ namespace Zzaia.CoffeeShop.Order.Application.Commands.CreateOrder;
 
 using MediatR;
 using Zzaia.CoffeeShop.Order.Application.Common.Models;
+using Zzaia.CoffeeShop.Order.Presentation.Endpoints;
 
 /// <summary>
 /// Command to create a new order.
 /// </summary>
 /// <param name="UserId">The user identifier.</param>
-/// <param name="Items">The list of order items.</param>
+/// <param name="Item">The list of order items.</param>
 public record CreateOrderCommand(
     string UserId,
-    List<OrderItemRequest> Items
+    CreateOrderItemRequest Item
 ) : IRequest<Result<Guid>>;
 
 /// <summary>

@@ -28,40 +28,37 @@ public class CreateOrderCommandHandler(
         try
         {
             Order order = Order.Create(request.UserId);
-            foreach (OrderItemRequest itemRequest in request.Items)
+            Product? product = await productRepository.GetByIdAsync(request.Item.ProductId, cancellationToken);
+            if (product is null)
             {
-                Product? product = await productRepository.GetByIdAsync(itemRequest.ProductId, cancellationToken);
-                if (product is null)
-                {
-                    return Result<Guid>.Failure($"Product with ID {itemRequest.ProductId} not found");
-                }
-                if (!product.IsAvailable)
-                {
-                    return Result<Guid>.Failure($"Product '{product.Name}' is not available");
-                }
-                Money unitPrice = product.BasePrice;
-                string? variationName = null;
-                if (itemRequest.VariationId.HasValue)
-                {
-                    ProductVariation? variation = await productRepository.GetVariationByIdAsync(
-                        itemRequest.VariationId.Value,
-                        cancellationToken);
-                    if (variation is null)
-                    {
-                        return Result<Guid>.Failure($"Product variation with ID {itemRequest.VariationId.Value} not found");
-                    }
-                    unitPrice = product.BasePrice.Add(variation.PriceAdjustment);
-                    variationName = variation.Name;
-                }
-                ProductSnapshot snapshot = ProductSnapshot.Create(
-                    product.ProductId,
-                    product.Name,
-                    product.Description,
-                    unitPrice,
-                    variationName);
-                Quantity quantity = Quantity.Create(itemRequest.Quantity);
-                order.AddItem(snapshot, quantity);
+                return Result<Guid>.Failure($"Product with ID {request.Item.ProductId} not found");
             }
+            if (!product.IsAvailable)
+            {
+                return Result<Guid>.Failure($"Product '{product.Name}' is not available");
+            }
+            Money unitPrice = product.BasePrice;
+            string? variationName = null;
+            if (request.Item.VariationId.HasValue)
+            {
+                ProductVariation? variation = await productRepository.GetVariationByIdAsync(
+                    request.Item.VariationId.Value,
+                    cancellationToken);
+                if (variation is null)
+                {
+                    return Result<Guid>.Failure($"Product variation with ID {request.Item.VariationId.Value} not found");
+                }
+                unitPrice = product.BasePrice.Add(variation.PriceAdjustment);
+                variationName = variation.Name;
+            }
+            ProductSnapshot snapshot = ProductSnapshot.Create(
+                product.ProductId,
+                product.Name,
+                product.Description,
+                unitPrice,
+                variationName);
+            Quantity quantity = Quantity.Create(request.Item.Quantity);
+            order.AddItem(snapshot, quantity);
 
             PaymentRequest paymentRequest = new(
                 order.OrderId.ToString(),

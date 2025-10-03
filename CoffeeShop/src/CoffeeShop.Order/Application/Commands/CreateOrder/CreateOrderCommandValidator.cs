@@ -16,10 +16,10 @@ public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
             .NotEmpty().WithMessage("User ID is required")
             .MaximumLength(256).WithMessage("User ID cannot exceed 256 characters");
 
-        RuleFor(x => x.Items)
+        RuleFor(x => x.Item)
             .NotEmpty().WithMessage("Order must contain at least one item");
 
-        RuleForEach(x => x.Items).ChildRules(item =>
+        RuleFor(x => x.Item).ChildRules(item =>
         {
             item.RuleFor(x => x.ProductId)
                 .NotEmpty().WithMessage("Product ID is required");
