@@ -53,16 +53,13 @@ public sealed class PaymentService(
             if (response.IsSuccessStatusCode)
             {
                 string responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-                PaymentResponse? paymentResponse = await response.Content
-                    .ReadFromJsonAsync<PaymentResponse>(cancellationToken);
                 logger.LogInformation(
-                    "Payment processed successfully for order {OrderId}, transaction {TransactionId}. Response: {Response}",
+                    "Payment processed successfully for order {OrderId}, Response: {Response}",
                     request.OrderId,
-                    paymentResponse?.TransactionId,
                     responseContent);
                 return new PaymentResult(
                     true,
-                    paymentResponse?.TransactionId,
+                    Guid.NewGuid().ToString(),
                     null);
             }
             else
@@ -113,15 +110,13 @@ public sealed class PaymentService(
             if (response.IsSuccessStatusCode)
             {
                 string responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-                PaymentResponse? refundResponse = await response.Content
-                    .ReadFromJsonAsync<PaymentResponse>(cancellationToken);
                 logger.LogInformation(
                     "Refund processed successfully for transaction {TransactionId}. Response: {Response}",
                     transactionId,
                     responseContent);
                 return new PaymentResult(
                     true,
-                    refundResponse?.TransactionId,
+                    Guid.NewGuid().ToString(),
                     null);
             }
             else
@@ -219,5 +214,5 @@ public sealed class PaymentService(
         }
     }
 
-    private record PaymentResponse(string TransactionId);
+    private record PaymentResponse(string Success, string Message);
 }

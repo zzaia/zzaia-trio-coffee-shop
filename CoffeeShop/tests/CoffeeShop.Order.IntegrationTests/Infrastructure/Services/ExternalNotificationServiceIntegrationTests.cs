@@ -38,7 +38,7 @@ public sealed class ExternalNotificationServiceIntegrationTests : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    [Fact(Skip = "Requires real Trio Challenge API")]
+    [Fact]
     public async Task SendOrderStatusNotificationAsync_WithRealAPI_ShouldSucceed()
     {
         string userId = "test-user-789";
@@ -53,7 +53,7 @@ public sealed class ExternalNotificationServiceIntegrationTests : IAsyncLifetime
         Console.WriteLine($"Notification sent successfully for order {orderId} with status {status}");
     }
 
-    [Theory(Skip = "Requires real Trio Challenge API")]
+    [Theory]
     [InlineData("Waiting")]
     [InlineData("Preparation")]
     [InlineData("Ready")]

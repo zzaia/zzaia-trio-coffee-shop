@@ -51,7 +51,7 @@ public sealed class PaymentServiceIntegrationTests : IAsyncLifetime
         await Task.CompletedTask;
     }
 
-    [Fact(Skip = "Requires real Trio Challenge API and Redis")]
+    [Fact]
     public async Task ProcessPaymentAsync_WithRealAPI_ShouldSucceed()
     {
         PaymentRequest request = new(
@@ -68,7 +68,7 @@ public sealed class PaymentServiceIntegrationTests : IAsyncLifetime
         Console.WriteLine($"Payment successful! Transaction ID: {result.TransactionId}");
     }
 
-    [Fact(Skip = "Requires real Trio Challenge API and successful payment first")]
+    [Fact]
     public async Task RefundPaymentAsync_WithRealAPI_ShouldSucceed()
     {
         PaymentRequest paymentRequest = new(
