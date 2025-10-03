@@ -52,7 +52,10 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Domain.Entit
                 .HasMaxLength(3)
                 .IsRequired();
         });
-        builder.HasMany<OrderItem>()
+        builder.Navigation(o => o.Items)
+            .UsePropertyAccessMode(PropertyAccessMode.Field)
+            .HasField("items");
+        builder.HasMany<OrderItem>(o => o.Items)
             .WithOne()
             .HasForeignKey(oi => oi.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
@@ -63,7 +66,6 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Domain.Entit
         builder.HasIndex(o => o.Status)
             .HasDatabaseName("idx_orders_status");
         builder.Ignore(o => o.OrderId);
-        builder.Ignore(o => o.Items);
         builder.Ignore(o => o.DomainEvents);
     }
 }

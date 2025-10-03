@@ -16,17 +16,21 @@ public static class AuthorizationPolicies
     /// <param name="services">The service collection instance.</param>
     public static void AddAuthorizationPolicies(this IServiceCollection services)
     {
+        services.AddHttpContextAccessor();
+        services.AddSingleton<IAuthorizationHandler, RoleHeaderHandler>();
         services.AddAuthorization(options =>
         {
             options.AddPolicy(CustomerPolicy, policy =>
             {
-                policy.RequireAuthenticatedUser();
-                policy.RequireClaim("role", "Customer", "customer");
+                // policy.RequireAuthenticatedUser();
+                // policy.RequireClaim("role", "Customer", "customer");
+                policy.Requirements.Add(new RoleHeaderRequirement("Customer"));
             });
             options.AddPolicy(ManagerPolicy, policy =>
             {
-                policy.RequireAuthenticatedUser();
-                policy.RequireClaim("role", "Manager", "manager");
+                // policy.RequireAuthenticatedUser();
+                // policy.RequireClaim("role", "Manager", "manager");
+                policy.Requirements.Add(new RoleHeaderRequirement("Manager"));
             });
         });
     }

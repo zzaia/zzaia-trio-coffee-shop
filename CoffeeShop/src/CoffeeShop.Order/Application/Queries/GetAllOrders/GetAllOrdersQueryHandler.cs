@@ -23,11 +23,6 @@ public class GetAllOrdersQueryHandler(
     {
         try
         {
-            if (!request.IsManager)
-            {
-                logger.LogWarning("Non-manager user {UserId} attempted to access all orders", request.RequestingUserId);
-                return Result<List<OrderDto>>.Failure("You are not authorized to view all orders");
-            }
             List<Domain.Entities.Order> orders = await orderRepository.GetAllAsync(cancellationToken);
             List<OrderDto> orderDtos = orders.Select(order => new OrderDto(
                 order.OrderId,

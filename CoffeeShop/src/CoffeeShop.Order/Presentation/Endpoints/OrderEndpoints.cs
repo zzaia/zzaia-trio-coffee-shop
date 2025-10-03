@@ -150,8 +150,8 @@ public static class OrderEndpoints
         [FromServices] ISender mediator,
         CancellationToken cancellationToken)
     {
-        string? userId = httpContext.User.FindFirst("sub")?.Value
-            ?? httpContext.User.FindFirst("userId")?.Value
+        string? userId = httpContext.Request.Headers.TryGetValue("userId", out var sub) ? sub.ToString() :
+            httpContext.User.FindFirst("userId")?.Value
             ?? throw new InvalidOperationException("User ID not found in token");
         GetAllOrdersQuery query = new(userId, IsManager: true);
         Result<List<OrderDto>> result = await mediator.Send(query, cancellationToken);
