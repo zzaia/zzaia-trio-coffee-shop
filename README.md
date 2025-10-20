@@ -5,9 +5,8 @@
 [![.NET](https://img.shields.io/badge/.NET-9-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Architecture](https://img.shields.io/badge/Architecture-Clean%20%7C%20CQRS%20%7C%20Event--Driven-blue)]()
 [![Infrastructure](https://img.shields.io/badge/Infrastructure-Dapr%20%7C%20Kafka%20%7C%20Kubernetes-orange)]()
-[![AI-Assisted](https://img.shields.io/badge/AI--Assisted-Claude%20Code-purple)](https://github.com/raphael-pizzaia/zzaia-agentic-workspace)
+[![AI-Assisted](https://img.shields.io/badge/AI--Assisted-Claude%20Code-purple)](https://github.com/zzaia/zzaia-agentic-workspace)
 
----
 
 ## Problem Statement 
 
@@ -18,6 +17,7 @@ Client demands a coffee shop system capable of managing orders, closing the gap 
 Coffee shop order management system built with modern microservices architecture, demonstrating enterprise-level design patterns, cloud-native deployment, and event-driven architecture.
 
 **Key Highlights**:
+- ✅ Microservice architecture 
 - ✅ Clean Architecture with strict layer separation
 - ✅ CQRS pattern with MediatR
 - ✅ Event-driven architecture using Kafka
@@ -26,7 +26,6 @@ Coffee shop order management system built with modern microservices architecture
 - ✅ Kubernetes-ready deployment
 - ✅ Comprehensive testing strategy (unit, integration, load)
 
----
 
 ## 🏗️ System Architecture
 
@@ -52,7 +51,12 @@ Coffee shop order management system built with modern microservices architecture
 - **Frontend**: Blazor WebAssembly (planned)
 - **DevOps**: Docker, Kubernetes, .NET Aspire, Aspire8, GitHub Actions
 
----
+## Video Demonstration
+
+This is a video demonstration about the system functionalities and architecture.
+
+<iframe src="https://drive.google.com/file/d/1sFKvOz9aS7tBZsbjdsrfTVWlAadTYtNq/preview" width="640" height="480" allow="autoplay"></iframe>
+
 
 ## 📚 Documentation
 
@@ -79,7 +83,6 @@ Comprehensive documentation covering architecture, data models, implementation p
 - **[Order Implementation Plan](./CoffeeShop/docs/order/order-implementation-plan.md)**: 11 phases (29-38 days), payment integration, compensation logic
 - **[BFF Implementation Plan](./CoffeeShop/docs/bff/bff-implementation-plan.md)**: 11 phases (27-35 days), GraphQL schema, Dapr service invocation
 
----
 
 ## 🎓 Demonstrated Capabilities
 
@@ -113,18 +116,16 @@ Comprehensive documentation covering architecture, data models, implementation p
 - **Load Testing**: Performance benchmarks, circuit breaker validation
 - **Idempotency Testing**: Event deduplication, distributed systems reliability
 
----
 
 ## 🤖 AI-Assisted Development
 
 This project showcases the integration of AI-powered development workflows using a **customized agentic system** built on Claude Code.
 
 ### Custom AI Workspace
-- **Repository**: [zzaia-agentic-workspace](https://github.com/raphael-pizzaia/zzaia-agentic-workspace)
+- **Repository**: [zzaia-agentic-workspace](https://github.com/zzaia/zzaia-agentic-workspace)
 - **Toolset**: Claude Code with custom agents, slash commands, and templates 
 - **Workflow**: Multi-repository management, git worktrees, automated task orchestration
 
----
 
 ## 📊 Project Statistics
 
@@ -136,7 +137,6 @@ This project showcases the integration of AI-powered development workflows using
 - **Database Strategy**: 2 PostgreSQL databases, 1 Redis instance
 - **Infrastructure Components**: Kafka (3 brokers), Dapr, Vault, Kubernetes
 
----
 
 ## 🚀 Getting Started
 
@@ -152,7 +152,7 @@ This project showcases the integration of AI-powered development workflows using
 ### Local Development
 ```bash
 # Clone repository
-git clone https://github.com/raphael-pizzaia/zzaia-trio-coffee-shop.git
+git clone https://github.com/zzaia/zzaia-trio-coffee-shop.git
 cd zzaia-trio-coffee-shop
 
 # Start infrastructure (PostgreSQL, Redis, Kafka, Vault)
@@ -173,7 +173,6 @@ aspire8 generate
 kubectl apply -f manifests/
 ```
 
----
 
 ## 🔮 Future Development
 
@@ -196,31 +195,9 @@ kubectl apply -f manifests/
 - **Fraud Detection**: Anomaly detection for payment patterns
 - **Chatbot Support**: AI-powered customer service
 
----
 
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 This project is part of a professional portfolio and is available for review by technical and hiring teams.
-
----
-
-## 👤 Author
-
-**Raphael Pizzaia**
-
-Solution Architect & Full-Stack Developer
-
-- Portfolio: [Link to portfolio]
-- LinkedIn: [Link to LinkedIn]
-- AI Workspace: [zzaia-agentic-workspace](https://github.com/zzaia/zzaia-agentic-workspace)
-
----
-
-## 🙏 Acknowledgments
-
-- **Trio Coffee Shop Challenge**: Original challenge concept
-- **Claude AI**: AI-assisted development and documentation
-- **Microsoft**: .NET platform and Aspire framework
-- **Dapr Community**: Service mesh patterns and guidance
