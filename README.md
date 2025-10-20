@@ -55,7 +55,7 @@ Coffee shop order management system built with modern microservices architecture
 
 This is a video demonstration about the system functionalities and architecture.
 
-<iframe src="https://drive.google.com/file/d/1sFKvOz9aS7tBZsbjdsrfTVWlAadTYtNq/preview" width="640" height="480" allow="autoplay"></iframe>
+<video src="https://drive.google.com/uc?export=download&id=1sFKvOz9aS7tBZsbjdsrfTVWlAadTYtNq" controls></video>
 
 
 ## 📚 Documentation
