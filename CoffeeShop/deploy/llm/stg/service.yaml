@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: coffee-shop-llm-service
+  namespace: coffee-shop
+spec:
+  selector:
+    app: coffee-shop-llm
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP

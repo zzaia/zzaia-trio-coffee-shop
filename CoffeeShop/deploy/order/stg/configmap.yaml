@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coffee-shop-order-config
+  namespace: coffee-shop
+data:
+  appsettings.json: |
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.AspNetCore": "Warning"
+        }
+      },
+      "AllowedHosts": "*",
+      "Azure": {
+        "KeyVault": {
+          "Name": "zzaia-coffee-shop-kv",
+          "Uri": "https://zzaia-coffee-shop-kv.vault.azure.net/"
+        }
+      }
+    }

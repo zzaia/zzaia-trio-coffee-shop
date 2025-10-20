@@ -1,0 +1,42 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch AppHost (Aspire)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-apphost",
+      "program": "${workspaceFolder}/CoffeeShop/src/CoffeeShop.AppHost/bin/Debug/net9.0/CoffeeShop.AppHost.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/CoffeeShop/src/CoffeeShop.AppHost",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_ENVIRONMENT": "Development",
+        "DOTNET_ROOT": "${env:HOME}/.dotnet",
+        "DOTNET_HOST_PATH": "${env:HOME}/.dotnet/dotnet",
+        "DOTNET_ROLL_FORWARD": "Major",
+        "PATH": "${env:HOME}/.dotnet:${env:PATH}"
+      }
+    },
+    {
+      "name": "Launch Order Service",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-order",
+      "program": "${workspaceFolder}/CoffeeShop/src/CoffeeShop.Order/bin/Debug/net9.0/CoffeeShop.Order.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/CoffeeShop/src/CoffeeShop.Order",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5002"
+      }
+    }
+  ]
+}

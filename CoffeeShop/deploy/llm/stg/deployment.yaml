@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coffee-shop-llm
+  namespace: coffee-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coffee-shop-llm
+  template:
+    metadata:
+      labels:
+        app: coffee-shop-llm
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "coffee-shop-llm"
+        dapr.io/app-port: "8000"
+        dapr.io/config: "dapr-config"
+    spec:
+      containers:
+      - name: coffee-shop-llm
+        image: zzaia/coffee-shop-llm:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: PORT
+          value: "8000"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5

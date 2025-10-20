@@ -1,0 +1,22 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: order-pubsub
+  namespace: __NAMESPACE__
+spec:
+  type: pubsub.kafka
+  version: v1
+  initTimeout: 30s
+  metadata:
+  - name: brokers
+    value: localhost:9092
+  - name: authType
+    value: none
+  - name: consumerGroup
+    value: __DAPR_APP_ID__
+  - name: clientId
+    value: __DAPR_APP_ID__
+  - name: maxMessageBytes
+    value: "1000000"
+  - name: version
+    value: 3.0.0

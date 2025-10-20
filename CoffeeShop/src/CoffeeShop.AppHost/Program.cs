@@ -1,0 +1,66 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Zzaia.CoffeeShop.AppHost.Applications.Order;
+using Zzaia.CoffeeShop.AppHost.Applications.Wasm;
+using Zzaia.CoffeeShop.AppHost.Applications.BFF;
+using Zzaia.CoffeeShop.AppHost.Applications.LLM;
+using Zzaia.CoffeeShop.AppHost.Applications.Identity;
+
+IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
+
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+// Infrastructure Services
+// PostgreSQL 15 Database
+IResourceBuilder<ParameterResource> dbPassword = builder.AddParameter("DatabasePassword", secret: true);
+if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(dbPassword.Resource.Value))
+    throw new InvalidOperationException("A password for the PostgreSQL container is not configured.");
+
+IResourceBuilder<PostgresServerResource> sqlServer = builder
+    .AddPostgres("postgres-coffee-shop", dbPassword)
+    .WithImage("postgres", "15-alpine")
+    .WithEndpoint("tcp", endpoint => endpoint.Port = 5432, createIfNotExists: true)
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithVolume("zzaia-coffee-shop-postgres-data", "/var/lib/postgresql/data");
+
+// Redis 7 for Caching
+IResourceBuilder<RedisResource> redis = builder
+    .AddRedis("redis-coffee-shop")
+    .WithImage("redis", "7-alpine")
+    .WithEndpoint("tcp", endpoint => endpoint.Port = 6379, createIfNotExists: true)
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithVolume("zzaia-coffee-shop-redis-data", "/data");
+
+// Kafka for Event Streaming
+// Note: Using host port 9092 for Dapr sidecar connectivity
+IResourceBuilder<KafkaServerResource> kafka = builder
+    .AddKafka("kafka-coffee-shop", port: 9092)
+    .WithKafkaUI()
+    .WithEndpoint("tcp", endpoint => endpoint.Port = 9092, createIfNotExists: true)
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithVolume("zzaia-coffee-shop-kafka-data", "/var/lib/kafka/data");
+
+// HashiCorp Vault for Secret Management (Development only)
+IResourceBuilder<ContainerResource>? vault = null;
+if (builder.Environment.IsDevelopment())
+{
+    vault = builder.AddContainer("vault-coffee-shop", "hashicorp/vault", "1.15")
+        .WithHttpEndpoint(targetPort: 8200, name: "http")
+        .WithEnvironment("VAULT_DEV_ROOT_TOKEN_ID", "dev-token")
+        .WithEnvironment("VAULT_DEV_LISTEN_ADDRESS", "0.0.0.0:8200")
+        .WithArgs("server", "-dev")
+        .WithLifetime(ContainerLifetime.Persistent);
+}
+
+string namespaceName = "coffee-shop";
+// builder.AddIdentityApplication(sqlServer, redis, kafka);
+builder.AddOrderApplication(namespaceName, sqlServer, redis, kafka);
+// builder.AddBFFApplication(redis, kafka);
+// builder.AddWasmApplication();
+// builder.AddLLMApplication();
+
+builder.Build().Run();
