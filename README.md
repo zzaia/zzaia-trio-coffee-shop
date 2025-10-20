@@ -126,6 +126,8 @@ This project showcases the integration of AI-powered development workflows using
 - **Workflow**: Multi-repository management, git worktrees, automated task orchestration
 
 
+
+
 ## 📊 Project Statistics
 
 - **Services**: 3 microservices (Identity, Order, BFF)
