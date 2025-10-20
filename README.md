@@ -26,9 +26,6 @@ Coffee shop order management system built with modern microservices architecture
 - ✅ Kubernetes-ready deployment
 - ✅ Comprehensive testing strategy (unit, integration, load)
 
-
-
-
 ## 🏗️ System Architecture
 
 ### Microservices
